@@ -3,7 +3,7 @@ package agp.weighting
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
-final class SimplifiedKnapsackSolution[T <: Ordered[T]] {
+final class GeneralKnapsackSolution[T <: Ordered[T]](weighables: WeighablesCombination[T]) {
 
   /* type aliases */
   private type Weighable = agp.weighting.Weighable[T]
@@ -11,7 +11,7 @@ final class SimplifiedKnapsackSolution[T <: Ordered[T]] {
   private type Combinations = List[WeighablesCombination[T]]
 
 
-  def apply(weighables: Combination, goal: Weighable): Combinations = {
+  def apply(goal: Weighable): Combinations = {
     require(goal.isPositive)
     require(weighables.nonEmpty)
     require(weighables.forall(_.isPositive))
@@ -34,8 +34,11 @@ final class SimplifiedKnapsackSolution[T <: Ordered[T]] {
       if (weighables.isEmpty || weighables.head > goal) {
         List.empty
       } else if (weighables.head < goal) {
+        /* all possible combinations of a head and tail
+         elements with combined weight equal to goal */
         headAndTailUnionCombinationsFor(weighables)
       } else {
+        /* a list of one combination with one element */
         List(List(weighables.head))
       }
     }
