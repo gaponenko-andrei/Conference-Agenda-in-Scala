@@ -8,28 +8,32 @@ class KnapsackSolutionForInts(ints: List[Int]) {
   type Combinations = List[Combination]
 
   /* private aliases for package-private types used in general knapsack solution */
-  private type WeighablesCombination = agp.weighting.WeighablesCombination[OrderedInt]
-  private type WeighablesCombinations = List[WeighablesCombination]
+  private type WCombination = agp.weighting.WeighablesCombination[OrderedInt]
+  private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Int): Combinations = simplify(
-    new GeneralKnapsackSolution[OrderedInt]
-    (adaptIntsForGeneralSolution(ints)) // weighables
-    (adaptGoalForGeneralSolution(goal)) // desired goal
+  def apply(goal: Int): Combinations = simplifyCombinations(
+    new GeneralKnapsackSolution
+    (adaptForGeneralSolution(ints)) // weighables
+    (adaptForGeneralSolution(goal)) // desired goal
   )
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
 
-  private def adaptIntsForGeneralSolution(ints: Combination): WeighablesCombination = ints.map(new WeighableInt(_))
+  private def adaptForGeneralSolution(ints: Combination)
+  : WCombination = ints.map(new WeighableInt(_))
 
-  private def adaptGoalForGeneralSolution(i: Int): WeighableInt = new WeighableInt(i)
+  private def adaptForGeneralSolution(i: Int)
+  : WeighableInt = new WeighableInt(i)
 
 
-  /* Methods to simplify (unwrap) general generalSolution result into client-known types */
+  /* Methods to simplify (unwrap) result of general solution into client-known types */
 
-  private def simplify(combinations: WeighablesCombinations): Combinations = combinations.map(simplify)
+  private def simplifyCombinations(combinations: WCombinations)
+  : Combinations = combinations.map(simplifyCombination)
 
-  private def simplify(combination: WeighablesCombination): Combination = combination.map(_.weight.value)
+  private def simplifyCombination(combination: WCombination)
+  : Combination = combination.map(_.weight.value)
 
 
   /* Auxiliary classes */

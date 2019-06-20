@@ -23,7 +23,7 @@ final class GeneralKnapsackSolution[T <: Ordered[T]](weighables: WeighablesCombi
     @tailrec
     def iteration(unprocessedWeighables: Combination, result: ListBuffer[Combination]): Combinations = {
       if (unprocessedWeighables.isEmpty) {
-        List.empty
+        result.toList
       } else {
         result ++= combinationsStartingWithHeadFor(unprocessedWeighables)
         iteration(unprocessedWeighables.tail, result)
@@ -34,19 +34,18 @@ final class GeneralKnapsackSolution[T <: Ordered[T]](weighables: WeighablesCombi
       if (weighables.isEmpty || weighables.head > goal) {
         List.empty
       } else if (weighables.head < goal) {
-        /* all possible combinations of a head and tail
-         elements with combined weight equal to goal */
+        /* possible combinations of a head and tail; in each of those combinations
+         weight sum of 'head :: tail' elements conforms to provided goal weight */
         headAndTailUnionCombinationsFor(weighables)
       } else {
-        /* a list of one combination with one element */
+        // a list of one combination with one element
         List(List(weighables.head))
       }
     }
 
     def headAndTailUnionCombinationsFor(weighables: Combination): Combinations = {
       val tailGoal = goal - weighables.head.weight
-      findCombinationsFor(tailGoal, weighables.tail)
-        .map(List(weighables.head) :::)
+      findCombinationsFor(tailGoal, weighables.tail).map(List(weighables.head) :::)
     }
 
     iteration(allWeighables, new ListBuffer)
