@@ -3,22 +3,21 @@ package agp.weighting
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
-final class GeneralKnapsackSolution[T <: Ordered[T]](weighables: WeighablesCombination[T]) {
+final class GeneralKnapsackSolution[W <: Weighable[T], T <: Ordered[T]](weighables: List[W]) {
 
   /* type aliases */
-  private type Weighable = agp.weighting.Weighable[T]
-  private type Combination = WeighablesCombination[T]
-  private type Combinations = List[WeighablesCombination[T]]
+  private type Combination = List[W]
+  private type Combinations = List[Combination]
 
 
-  def apply(goal: Weighable): Combinations = {
+  def apply(goal: Weighable[T]): Combinations = {
     require(goal.isPositive)
     require(weighables.nonEmpty)
     require(weighables.forall(_.isPositive))
-    findCombinationsFor(goal, weighables.sorted(Ordering[Weighable].reverse))
+    findCombinationsFor(goal, weighables.sorted(Ordering[Weighable[T]].reverse))
   }
 
-  private def findCombinationsFor(goal: Weighable, allWeighables: Combination): Combinations = {
+  private def findCombinationsFor(goal: Weighable[T], allWeighables: Combination): Combinations = {
 
     @tailrec
     def iteration(unprocessedWeighables: Combination, result: ListBuffer[Combination]): Combinations = {
@@ -34,12 +33,8 @@ final class GeneralKnapsackSolution[T <: Ordered[T]](weighables: WeighablesCombi
       if (weighables.isEmpty || weighables.head > goal) {
         List.empty
       } else if (weighables.head < goal) {
-        /* possible combinations of a head and tail;
-        in each combination weight sum of 'head :: tail'
-        elements conforms to provided goal weight */
         headAndTailUnionCombinationsFor(weighables)
       } else {
-        // a list of one combination with one element
         List(List(weighables.head))
       }
     }

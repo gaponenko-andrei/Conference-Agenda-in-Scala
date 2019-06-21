@@ -13,7 +13,4 @@ package object weighting {
 
     def -(otherWeight: T): Weighable[T]
   }
-
-  type WeighablesCombination[T <: Ordered[T]] = List[Weighable[T]]
-
 }

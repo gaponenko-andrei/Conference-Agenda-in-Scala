@@ -8,12 +8,12 @@ class KnapsackSolutionForInts(ints: List[Int]) {
   type Combinations = List[Combination]
 
   /* private aliases for package-private types used in general knapsack solution */
-  private type WCombination = agp.weighting.WeighablesCombination[OrderedInt]
+  private type WCombination = List[WeighableInt]
   private type WCombinations = List[WCombination]
 
 
   def apply(goal: Int): Combinations = simplifyCombinations(
-    new GeneralKnapsackSolution
+    new GeneralKnapsackSolution[WeighableInt, OrderedInt]
     (adaptForGeneralSolution(ints)) // weighables
     (adaptForGeneralSolution(goal)) // desired goal
   )
@@ -38,11 +38,7 @@ class KnapsackSolutionForInts(ints: List[Int]) {
 
   /* Auxiliary classes */
 
-  private class OrderedInt(val value: Int) extends Ordered[OrderedInt] {
-    def compare(other: OrderedInt): Int = this.value - other.value
-  }
-
-  private class WeighableInt(i: Int) extends agp.weighting.Weighable[OrderedInt] {
+  private final class WeighableInt(i: Int) extends agp.weighting.Weighable[OrderedInt] {
     val ordered = new OrderedInt(i)
 
     def weight: OrderedInt = ordered
@@ -50,6 +46,10 @@ class KnapsackSolutionForInts(ints: List[Int]) {
     def isPositive: Boolean = ordered.value > 0
 
     def -(other: OrderedInt): WeighableInt = new WeighableInt(ordered.value - other.value)
+  }
+
+  private final class OrderedInt(val value: Int) extends Ordered[OrderedInt] {
+    def compare(other: OrderedInt): Int = this.value - other.value
   }
 
 }
