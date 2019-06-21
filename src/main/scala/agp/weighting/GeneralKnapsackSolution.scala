@@ -34,8 +34,9 @@ final class GeneralKnapsackSolution[T <: Ordered[T]](weighables: WeighablesCombi
       if (weighables.isEmpty || weighables.head > goal) {
         List.empty
       } else if (weighables.head < goal) {
-        /* possible combinations of a head and tail; in each of those combinations
-         weight sum of 'head :: tail' elements conforms to provided goal weight */
+        /* possible combinations of a head and tail;
+        in each combination weight sum of 'head :: tail'
+        elements conforms to provided goal weight */
         headAndTailUnionCombinationsFor(weighables)
       } else {
         // a list of one combination with one element
