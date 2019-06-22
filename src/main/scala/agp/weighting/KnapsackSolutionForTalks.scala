@@ -48,8 +48,6 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
     def isPositive: Boolean = this.weight.toMillis > 0
 
     def -(otherWeight: Duration): Weighable[Duration] = new WeighableDuration(this.weight - otherWeight)
-
-    override def toString: String = s"WeighableTalk[${value.title}, ${weight.toMinutes} minutes]"
   }
 
   private final class WeighableDuration(val weight: Duration) extends Weighable[Duration] {
@@ -57,8 +55,6 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
     def isPositive: Boolean = weight.toMillis > 0
 
     def -(otherWeight: Duration): Weighable[Duration] = new WeighableDuration(weight - otherWeight)
-
-    override def toString: String = s"WeighableDuration[${weight.toMinutes} minutes]"
   }
 
 }

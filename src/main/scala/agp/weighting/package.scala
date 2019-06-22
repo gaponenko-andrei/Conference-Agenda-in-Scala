@@ -13,4 +13,5 @@ package object weighting {
 
     def -(otherWeight: T): Weighable[T]
   }
+
 }
