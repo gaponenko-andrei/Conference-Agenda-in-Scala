@@ -20,12 +20,12 @@ final class GeneralKnapsackSolution[W <: Weighable[T], T <: Ordered[T]](weighabl
   private def findCombinationsFor(goal: Weighable[T], allWeighables: Combination): Combinations = {
 
     @tailrec
-    def iteration(unprocessedWeighables: Combination, result: ListBuffer[Combination]): Combinations = {
+    def process(unprocessedWeighables: Combination, result: ListBuffer[Combination]): Combinations = {
       if (unprocessedWeighables.isEmpty) {
         result.toList
       } else {
         result ++= combinationsStartingWithHeadFor(unprocessedWeighables)
-        iteration(unprocessedWeighables.tail, result)
+        process(unprocessedWeighables.tail, result)
       }
     }
 
@@ -44,7 +44,7 @@ final class GeneralKnapsackSolution[W <: Weighable[T], T <: Ordered[T]](weighabl
       findCombinationsFor(tailGoal, weighables.tail).map(List(weighables.head) :::)
     }
 
-    iteration(allWeighables, new ListBuffer)
+    process(allWeighables, new ListBuffer)
   }
 
 }
