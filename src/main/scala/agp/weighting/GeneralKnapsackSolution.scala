@@ -11,9 +11,9 @@ final class GeneralKnapsackSolution[W <: Weighable[T], T <: Ordered[T]](weighabl
 
 
   def apply(goal: Weighable[T]): Combinations = {
-    require(goal.isPositive)
-    require(weighables.nonEmpty)
-    require(weighables.forall(_.isPositive))
+    require(goal.isPositive, "Goal must be positive.")
+    require(weighables.nonEmpty, "At least one weighable is required.")
+    require(weighables.forall(_.isPositive), "All weighables must be positive.")
     findCombinationsFor(goal, weighables.sorted(Ordering[Weighable[T]].reverse))
   }
 
