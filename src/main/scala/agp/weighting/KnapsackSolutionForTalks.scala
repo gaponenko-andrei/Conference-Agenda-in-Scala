@@ -1,21 +1,17 @@
 package agp.weighting
 
-import agp.vo.Talk
+import agp.vo.{Talk, TalksCombination, TalksCombinations}
 
 import scala.concurrent.duration.Duration
 
-class KnapsackSolutionForTalks(talks: Set[Talk]) {
-
-  /* public aliases */
-  type Combination = Set[Talk]
-  type Combinations = Set[Combination]
+class KnapsackSolutionForTalks(talks: TalksCombination) {
 
   /* private aliases for package-private types used in general knapsack solution */
   private type WCombination = List[WeighableTalk]
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Duration): Combinations = simplifyCombinations(
+  def apply(goal: Duration): TalksCombinations = simplifyCombinations(
     new GeneralKnapsackSolution[WeighableTalk, Duration]
     (adaptForGeneralSolution(talks)) // weighables
     (adaptForGeneralSolution(goal))  // desired goal
@@ -23,7 +19,7 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
 
-  private def adaptForGeneralSolution(talks: Combination)
+  private def adaptForGeneralSolution(talks: TalksCombination)
   : WCombination = talks.map(new WeighableTalk(_)).toList
 
   private def adaptForGeneralSolution(duration: Duration)
@@ -33,10 +29,10 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
   /* Methods to simplify (unwrap) result of general solution into client-known types */
 
   private def simplifyCombinations(combinations: WCombinations)
-  : Combinations = combinations.map(simplifyCombination).toSet
+  : TalksCombinations = combinations.map(simplifyCombination).toSet
 
   private def simplifyCombination(combination: WCombination)
-  : Combination = combination.map(_.value).toSet
+  : TalksCombination = combination.map(_.value).toSet
 
 
   /* Auxiliary classes */
