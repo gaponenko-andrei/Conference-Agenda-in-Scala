@@ -1,12 +1,17 @@
 package agp
 
+import scala.concurrent.duration.Duration._
 import scala.concurrent.duration.{Duration, MINUTES}
 
 package object vo {
 
-  abstract class Event(val title: String, val duration: Duration) {
-    require(title.trim.nonEmpty, "Event title must have some chars.")
-    require(duration.toMillis > 0, "Event duration must be positive.")
+  implicit class Events[E <: Event](val events: Iterable[E]) {
+    def duration: Duration = events.toList.map(_.duration).foldLeft(Zero.asInstanceOf[Duration])(_ + _)
+  }
+
+  sealed abstract class Event(val title: String, val duration: Duration) {
+    require(title.trim.nonEmpty, s"${getClass.getSimpleName} title must have some chars.")
+    require(duration.toMillis > 0, s"${getClass.getSimpleName} duration must be positive.")
   }
 
   /* Talk */
@@ -19,18 +24,14 @@ package object vo {
     def apply(title: String, min: Int): Talk = Talk(title, Duration(min, MINUTES))
   }
 
-  /* CompositeEvent */
+  /* CompositeEvent(s) */
 
-  case class CompositeEvent[E <: Event](override val title: String, events: List[E]) extends Event(title, events.duration) {
-    require(events.nonEmpty, "CompositeEvent must have at least one event.")
+  sealed abstract class CompositeEvent[E <: Event](override val title: String, val events: List[E])
+    extends Event(title, events.duration) with Iterable[E] {
+
+    val iterator: Iterator[E] = events.iterator
   }
 
-  /* implicits */
-
-  implicit class Events[E <: Event](val events: Iterable[E]) {
-    def duration: Duration =
-      if (events.isEmpty) Duration.Zero
-      else events.toList.map(_.duration).reduce(_ + _)
-  }
-
+  case class MorningSession[E <: Event](override val title: String, override val events: List[E])
+    extends CompositeEvent(title, events)
 }
