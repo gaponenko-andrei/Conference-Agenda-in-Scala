@@ -27,7 +27,9 @@ class MorningSessionSchedulingImpl(val knapsackSolution: TalksCombination => Tal
   }
 
   private def newException = new SchedulingException(
-    "Failed to schedule MorningSession for given knapsack solution."
+    "Failed to schedule MorningSession with knapsack solution " +
+      "for provided talks, because no possible combination " +
+      "of talks conforms to required goal duration of event."
   )
 }
 

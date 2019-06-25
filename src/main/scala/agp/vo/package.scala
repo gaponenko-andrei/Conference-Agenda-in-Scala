@@ -7,7 +7,9 @@ package object vo {
 
   /* extension methods */
   implicit class Events[E <: Event](val events: Iterable[E]) {
+
     def duration: Duration = events.toList.map(_.duration).foldLeft(Zero.asInstanceOf[Duration])(_ + _)
+
     def except(otherEvents: Set[E]): Set[E] = events.toSet diff otherEvents
   }
 
