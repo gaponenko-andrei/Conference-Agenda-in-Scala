@@ -14,7 +14,10 @@ private[scheduling] class MorningSessionsSchedulingImpl
   def apply(talks: Set[vo.Talk]): MorningSessionsSchedulingResult = {
     validateNumberOf(talks)
 
-    ???
+    val result = morningSessionScheduling(talks)
+    morningSessionScheduling(result.unusedTalks)
+
+    null
   }
 
   private def validateNumberOf(talks: Set[vo.Talk]): Unit =

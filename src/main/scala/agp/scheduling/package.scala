@@ -12,6 +12,7 @@ package object scheduling {
 
   final class MorningSessionSchedulingResult(val session: MorningSession, val unusedTalks: Set[Talk])
 
+
   /* Morning Sessions Scheduling */
 
   abstract class MorningSessionsScheduling extends (Set[Talk] => MorningSessionsSchedulingResult)
