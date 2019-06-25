@@ -1,6 +1,6 @@
 package agp.scheduling
 
-import agp.vo.{Talk, TalksCombination, TalksCombinations}
+import agp.vo.{Talk, TalksCombinations}
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 import scala.concurrent.duration._
@@ -44,8 +44,8 @@ class MorningSessionSchedulingImplSpec extends WordSpec with Matchers with Given
       When("scheduling using this knapsack solution is applied")
       val result = MorningSessionSchedulingImpl.using(knapsackSolution)(talks)
 
-      Then("result MorningSession should consist of first combination")
-      result.event.toList should contain only Talk("#2", 30)
+      Then("result session should consist of first combination")
+      result.session.toList should contain only Talk("#2", 30)
     }
 
     "return Talks unused for creation of MorningSession" in {
@@ -60,13 +60,13 @@ class MorningSessionSchedulingImplSpec extends WordSpec with Matchers with Given
       val result = MorningSessionSchedulingImpl.using(knapsackSolution)(talks)
 
       Then("unused talks in result should contain only second talk")
-      result.unusedEvents.toList should contain only Talk("#2", 30)
+      result.unusedTalks should contain only Talk("#2", 30)
     }
   }
 
   /* util */
 
-  def newKnapsackSolutionReturning(combinations: TalksCombination*)
-  : TalksCombination => TalksCombinations = _ => combinations.toSet
+  def newKnapsackSolutionReturning(combinations: Set[Talk]*)
+  : Set[Talk] => TalksCombinations = _ => combinations.toSet
 
 }

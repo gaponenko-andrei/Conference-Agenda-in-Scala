@@ -1,12 +1,21 @@
 package agp
 
-import agp.vo.{CompositeEvent, Event}
+import agp.vo.{MorningSession, Talk}
 
 package object scheduling {
 
-  trait Scheduling[E <: Event, C <: CompositeEvent[E]] extends (Set[E] => Result[E, C])
-
-  final class Result[E <: Event, C <: CompositeEvent[E]](val event: C, val unusedEvents: Iterable[E])
-
   final class SchedulingException(val msg: String) extends RuntimeException(msg)
+
+  /* Morning Session Scheduling */
+
+  abstract class MorningSessionScheduling extends (Set[Talk] => MorningSessionSchedulingResult)
+
+  final class MorningSessionSchedulingResult(val session: MorningSession, val unusedTalks: Set[Talk])
+
+  /* Morning Sessions Scheduling */
+
+  abstract class MorningSessionsScheduling extends (Set[Talk] => MorningSessionsSchedulingResult)
+
+  final class MorningSessionsSchedulingResult(val sessions: Set[MorningSession], val unusedTalks: Set[Talk])
+
 }

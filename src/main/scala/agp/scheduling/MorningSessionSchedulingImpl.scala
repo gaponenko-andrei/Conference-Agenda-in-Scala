@@ -1,24 +1,24 @@
 package agp.scheduling
 
-import agp.vo.{MorningSession, Talk, TalksCombination, TalksCombinations}
+import agp.vo.{MorningSession, Talk, TalksCombinations}
 import agp.weighting.KnapsackSolutionForTalks
 
 import scala.concurrent.duration.Duration
 
-class MorningSessionSchedulingImpl(val knapsackSolution: TalksCombination => TalksCombinations)
-  extends Scheduling[Talk, MorningSession[Talk]] {
+private[scheduling] class MorningSessionSchedulingImpl
+(val knapsackSolution: Set[Talk] => TalksCombinations) extends MorningSessionScheduling {
 
-  /* private aliases */
-  private type Result = agp.scheduling.Result[Talk, MorningSession[Talk]]
+  /* shorter alias for result type */
+  private type Result = MorningSessionSchedulingResult
 
 
-  def apply(talks: TalksCombination): Result = {
+  def apply(talks: Set[Talk]): Result = {
     require(talks.nonEmpty, "At least one talk is required.")
 
     def findFirstSuitableCombination() =
       knapsackSolution(talks).collectFirst { case i => i }
 
-    def newResultFromGivenTalks(sessionTalks: TalksCombination) =
+    def newResultFromGivenTalks(sessionTalks: Set[Talk]) =
       new Result(MorningSession(sessionTalks), talks except sessionTalks)
 
     findFirstSuitableCombination()
@@ -36,8 +36,8 @@ class MorningSessionSchedulingImpl(val knapsackSolution: TalksCombination => Tal
 object MorningSessionSchedulingImpl {
 
   def using(goal: Duration): MorningSessionSchedulingImpl = MorningSessionSchedulingImpl
-    .using((talks: TalksCombination) => new KnapsackSolutionForTalks(talks)(goal))
+    .using((talks: Set[Talk]) => new KnapsackSolutionForTalks(talks)(goal))
 
-  def using(knapsackSolution: TalksCombination => TalksCombinations) =
+  def using(knapsackSolution: Set[Talk] => TalksCombinations) =
     new MorningSessionSchedulingImpl(knapsackSolution)
 }

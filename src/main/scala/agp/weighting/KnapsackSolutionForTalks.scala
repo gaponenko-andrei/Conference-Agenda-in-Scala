@@ -1,10 +1,10 @@
 package agp.weighting
 
-import agp.vo.{Talk, TalksCombination, TalksCombinations}
+import agp.vo.{Talk, TalksCombinations}
 
 import scala.concurrent.duration.Duration
 
-class KnapsackSolutionForTalks(talks: TalksCombination) {
+class KnapsackSolutionForTalks(talks: Set[Talk]) {
 
   /* private aliases for package-private types used in general knapsack solution */
   private type WCombination = List[WeighableTalk]
@@ -19,7 +19,7 @@ class KnapsackSolutionForTalks(talks: TalksCombination) {
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
 
-  private def adaptForGeneralSolution(talks: TalksCombination)
+  private def adaptForGeneralSolution(talks: Set[Talk])
   : WCombination = talks.map(new WeighableTalk(_)).toList
 
   private def adaptForGeneralSolution(duration: Duration)
@@ -32,7 +32,7 @@ class KnapsackSolutionForTalks(talks: TalksCombination) {
   : TalksCombinations = combinations.map(simplifyCombination).toSet
 
   private def simplifyCombination(combination: WCombination)
-  : TalksCombination = combination.map(_.value).toSet
+  : Set[Talk] = combination.map(_.value).toSet
 
 
   /* Auxiliary classes */
