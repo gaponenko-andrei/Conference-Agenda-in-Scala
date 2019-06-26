@@ -122,27 +122,27 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
         val combinations = applySolution(combination, 12)
 
         Then("result should be expected")
-        sorted(combinations) shouldBe (
-            (9, 3) * 2 :::
-            (9, 2, 1) * 2 :::
-            (8, 4) * 1 :::
-            (8, 3, 1) * 4 :::
-            (8, 2, 1, 1) * 1 :::
-            (4, 3, 3, 2) * 1 :::
-            (4, 3, 3, 1, 1) * 1
-          )
+        sorted(combinations) shouldBe {
+          (9, 3) * 2 :::
+          (9, 2, 1) * 2 :::
+          (8, 4) * 1 :::
+          (8, 3, 1) * 4 :::
+          (8, 2, 1, 1) * 1 :::
+          (4, 3, 3, 2) * 1 :::
+          (4, 3, 3, 1, 1) * 1
+        }
       }
     }
   }
 
   /* utils */
 
-  implicit final class Combination(product: Product) {
-    def *(times: Int): List[List[Any]] = List.fill(times)(product.productIterator.toList)
-  }
+  def applySolution(ints: List[Int], goal: Int) = new KnapsackSolutionForInts(ints)(goal)
 
   private def sorted(combinations: List[List[Int]]): List[List[Int]] = combinations.map(_.sortWith(_ > _))
 
-  def applySolution(ints: List[Int], goal: Int) = new KnapsackSolutionForInts(ints)(goal)
+  implicit final class Combination(product: Product) {
+    def *(times: Int): List[List[Any]] = List.fill(times)(product.productIterator.toList)
+  }
 
 }
