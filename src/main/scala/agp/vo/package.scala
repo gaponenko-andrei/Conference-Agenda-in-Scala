@@ -45,6 +45,7 @@ package object vo {
 
   object MorningSession {
     def apply(events: Iterable[Talk]): MorningSession = MorningSession("MorningSession", events.toList)
+    def apply(title: String, events: Set[Talk]): MorningSession = new MorningSession(title, events.toList)
   }
 
 }

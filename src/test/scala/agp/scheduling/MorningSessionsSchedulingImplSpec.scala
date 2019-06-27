@@ -9,7 +9,7 @@ import scala.language.postfixOps
 
 class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
 
-   "MorningSessionsSchedulingImpl" should {
+  "MorningSessionsSchedulingImpl" should {
 
     "throw" when {
 
@@ -26,7 +26,7 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
 
         Given("morning session scheduling throwing exception")
         List(newFailingSessionScheduling, // always throws SchedulingException
-          newUniqueSessionScheduling(1)   // returns result once, then throws
+             newUniqueSessionScheduling(1) // returns result once, then throws
         ).foreach(sessionScheduling => {
 
           And("morning sessions scheduling using it")
@@ -39,53 +39,83 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
       }
     }
 
-    "not throw" when {
+    "not throw when given number of talks >= required number of sessions" in {
 
-      "given number of talks >= required number of morning sessions" in {
+      Given("morning session scheduling always returning result")
+      val sessionScheduling = newSuccessSessionScheduling
 
-        Given("morning session scheduling always returning result")
-        val sessionScheduling = newSuccessSessionScheduling
+      And("required number of sessions = 2")
+      val requiredSessionsNumber = 2
 
-        And("required number of sessions = 2")
-        val requiredSessionsNumber = 2
+      And("morning sessions scheduling using them")
+      val scheduling = new MorningSessionsSchedulingImpl(
+        sessionScheduling, requiredSessionsNumber)
 
-        And("morning sessions scheduling using them")
-        val scheduling = new MorningSessionsSchedulingImpl(
-          sessionScheduling, requiredSessionsNumber)
+      Then("no exception should be thrown")
+      List(2 talks, 3 talks).foreach(talks => noException should be thrownBy {
 
-        Then("no exception should be thrown")
-        List(2 talks, 3 talks).foreach(talks => noException should be thrownBy {
-
-          When(s"scheduling is applied to ${talks.size} talks")
-          scheduling(talks)
-        })
-      }
+        When(s"scheduling is applied to ${talks.size} talks")
+        scheduling(talks)
+      })
     }
 
-    "result in required number of sessions" when {
+    "result in required number of sessions" in {
 
-      "it's possible with given session scheduling" in {
+      Given("morning session scheduling always returning result")
+      val sessionScheduling = newUniqueSessionScheduling(times = 3)
 
-        Given("morning session scheduling always returning result")
-        val sessionScheduling = newUniqueSessionScheduling(times = 3)
+      And("required number of sessions = 3")
+      val requiredSessionsNumber = 3
 
-        And("required number of sessions = 3")
-        val requiredSessionsNumber = 3
+      And("morning sessions scheduling using them")
+      val scheduling = new MorningSessionsSchedulingImpl(
+        sessionScheduling, requiredSessionsNumber)
 
-        And("morning sessions scheduling using them")
-        val scheduling = new MorningSessionsSchedulingImpl(
-          sessionScheduling, requiredSessionsNumber)
+      When("scheduling is applied to at least 3 talks")
+      val result = scheduling(3 talks)
 
-        When("scheduling is applied to at least 3 talks")
-        val result = scheduling(3 talks)
-
-        Then(s"result should have 3 morning sessions")
-        result.sessions.size shouldBe 3
-      }
+      Then(s"result should have 3 morning sessions")
+      result.sessions.size shouldBe 3
     }
 
-     // todo test result has expected sessions
-     // todo result has expected unused talks
+    "result in expected sessions" in {
+
+      Given("morning session scheduling returning unique results")
+      val sessionScheduling = newSessionSchedulingReturning(
+        sessionSchedulingResult(session("#5"), someTalks),
+        sessionSchedulingResult(session("#6"), someTalks))
+
+      And("morning sessions scheduling using them")
+      val scheduling = new MorningSessionsSchedulingImpl(
+        sessionScheduling, requiredSessionsNumber = 2)
+
+      When("scheduling is applied")
+      val result = scheduling(5 talks)
+
+      Then("result should have expected morning sessions")
+      result.sessions shouldBe Set(session("#5"), session("#6"))
+    }
+
+    "result in expected unused talks" in {
+
+      Given("several unique identifiable talks")
+      val uniqueTalks = Set(Talk("#8", 10), Talk("#9", 20))
+
+      And("session scheduling returning them as unused in last result")
+      val sessionScheduling = newSessionSchedulingReturning(
+        someSessionSchedulingResult,
+        sessionSchedulingResult(someSession, uniqueTalks))
+
+      And("morning sessions scheduling using them")
+      val scheduling = new MorningSessionsSchedulingImpl(
+        sessionScheduling, requiredSessionsNumber = 2)
+
+      When("scheduling is applied")
+      val result = scheduling(5 talks)
+
+      Then("result should have expected unused talks")
+      result.unusedTalks shouldBe uniqueTalks
+    }
   }
 
   /* to create MorningSessionScheduling mocks */
@@ -100,10 +130,12 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
 
   def newUniqueSessionScheduling(times: Int): MorningSessionScheduling = setup(mock[MorningSessionScheduling]) {
     it => (1 to times).foreach(i => {
-        val morningSession: MorningSession = session(talksNumber = i)
-        it.apply _ expects * returning sessionResult(morningSession, unusedTalks = i talks)
-      })
+      it.apply _ expects * returning sessionSchedulingResult(session("#" + i), someTalks)
+    })
   }
+
+  def newSessionSchedulingReturning(results: MorningSessionSchedulingResult*): MorningSessionScheduling =
+    setup(mock[MorningSessionScheduling]) { it => results foreach (it.apply _ expects * returning _ ) }
 
   def setup[T](obj: T)(setup: T => Unit): T = {
     setup(obj)
@@ -113,20 +145,22 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
   /* to create test MorningSessionSchedulingResult */
 
   def someSessionSchedulingResult: MorningSessionSchedulingResult =
-    sessionResult(someSession, unusedTalks = 2 talks)
+    sessionSchedulingResult(someSession, someTalks)
 
-  def sessionResult(session: MorningSession, unusedTalks: Set[Talk]) =
-    new MorningSessionSchedulingResult(session, unusedTalks)
+  def sessionSchedulingResult(session: MorningSession, unused: Set[Talk]) =
+    new MorningSessionSchedulingResult(session, unused)
 
 
   /* to create test MorningSession */
 
-  def someSession: MorningSession = session(2)
+  def someSession: MorningSession = session("Morning Session")
 
-  def session(talksNumber: Int) = MorningSession(talksNumber talks)
+  def session(title: String) = MorningSession(title, someTalks)
 
 
   /* to create test Talk */
+
+  def someTalks: Set[Talk] = 2 talks
 
   implicit class DummiesFactory(requiredCount: Int) {
     def talks: Set[Talk] = (1 to requiredCount).map(i => Talk(s"Title ${i + 1}", 5 + i)).toSet
