@@ -33,7 +33,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
       "given talk is longer then goal duration" in {
 
         Given("talk of 31 minutes")
-        val talks = Set(Talk("Title", 31 minutes))
+        val talks = Set(Talk("Title", 31))
 
         And("goal of 30 minutes")
         val goal = 30 minutes
@@ -48,7 +48,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
       "every talk is barely shorter then goal" in {
 
         Given("two talks of 29 minutes each")
-        val talks = Set(Talk("#1", 29 minutes), Talk("#2", 29 minutes))
+        val talks = Set(Talk("#1", 29), Talk("#2", 29))
 
         And("goal of 30 minutes")
         val goal = 30 minutes
@@ -69,7 +69,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         val goal = 30 minutes
 
         And("talk of 30 minutes")
-        val talks = Set(Talk("Title", goal))
+        val talks = Set(Talk("Title", 30))
 
         When("solution is applied")
         val combinations = applySolution(talks, goal)

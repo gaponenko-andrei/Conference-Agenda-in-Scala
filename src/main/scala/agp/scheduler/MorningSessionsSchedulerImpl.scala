@@ -1,4 +1,4 @@
-package agp.scheduling
+package agp.scheduler
 
 import agp.vo._
 
@@ -7,12 +7,12 @@ import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 
-private[scheduling] class MorningSessionsSchedulingImpl
-(val morningSessionScheduling: MorningSessionScheduling, val requiredSessionsNumber: Int)
-  extends (Set[Talk] => MorningSessionsSchedulingResult) {
+private[scheduler] class MorningSessionsSchedulerImpl
+(val morningSessionScheduling: MorningSessionScheduler, val requiredSessionsNumber: Int)
+  extends (Set[Talk] => MorningSessionsSchedulerResult) {
 
   /* shorter alias for result type */
-  private type Result = MorningSessionsSchedulingResult
+  private type Result = MorningSessionsSchedulerResult
 
 
   def apply(talks: Set[Talk]): Result = {
@@ -35,11 +35,11 @@ private[scheduling] class MorningSessionsSchedulingImpl
       s"Talks.size must be >= $requiredSessionsNumber.")
   }
 
-  private def scheduleSessionFrom(talks: Set[Talk]): MorningSessionSchedulingResult = {
+  private def scheduleSessionFrom(talks: Set[Talk]): MorningSessionSchedulerResult = {
     try {
       morningSessionScheduling(talks)
     } catch {
-      case NonFatal(ex) => throw new SchedulingException(
+      case NonFatal(ex) => throw new SchedulerException(
         "Failed to schedule required number of morning " +
         "sessions with given MorningSessionScheduling.", ex
       )
@@ -47,10 +47,10 @@ private[scheduling] class MorningSessionsSchedulingImpl
   }
 }
 
-object MorningSessionsSchedulingImpl {
+object MorningSessionsSchedulerImpl {
 
-  def apply(requiredSessionsNumber: Int): MorningSessionsSchedulingImpl = {
-    val defaultSessionScheduling = MorningSessionSchedulingImpl.using(goal = 3 hours)
-    new MorningSessionsSchedulingImpl(defaultSessionScheduling, requiredSessionsNumber)
+  def apply(requiredSessionsNumber: Int): MorningSessionsSchedulerImpl = {
+    val defaultSessionScheduling = MorningSessionSchedulerImpl.using(goal = 3 hours)
+    new MorningSessionsSchedulerImpl(defaultSessionScheduling, requiredSessionsNumber)
   }
 }

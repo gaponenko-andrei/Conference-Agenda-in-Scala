@@ -6,61 +6,54 @@ import scala.concurrent.duration._
 
 class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
 
-  "MorningSession" should {
+  "MorningSession should have expected duration " when {
 
-    "throw when empty list of events is used" in {
-      an[IllegalArgumentException] should be thrownBy MorningSession("_", List())
+    "events have same title, but different duration" in {
+
+      Given("two events with same title & different duration")
+      val events = List(Talk("Title", 30), Talk("Title", 40))
+
+      When("morning session is created from them")
+      val compoundEvent = MorningSession("_", events)
+
+      Then("its duration should be expected")
+      compoundEvent.duration shouldBe (70 minutes)
     }
 
-    "have expected duration" when {
+    "events have same title & same duration" in {
 
-      "events have same title, but different duration" in {
+      Given("two events with same title & duration")
+      val events = List(Talk("Title", 30), Talk("Title", 30))
 
-        Given("two events with same title & different duration")
-        val events = List(Talk("Title", 30), Talk("Title", 40))
+      When("morning session is created from them")
+      val compoundEvent = MorningSession("_", events)
 
-        When("morning session is created from them")
-        val compoundEvent = MorningSession("_", events)
+      Then("its duration should be expected")
+      compoundEvent.duration shouldBe (60 minutes)
+    }
 
-        Then("its duration should be expected")
-        compoundEvent.duration shouldBe (70 minutes)
-      }
+    "events have different title & duration" in {
 
-      "events have same title & same duration" in {
+      Given("two events with different title & duration")
+      val events = List(Talk("#1", 30), Talk("#2", 40))
 
-        Given("two events with same title & duration")
-        val events = List(Talk("Title", 30), Talk("Title", 30))
+      When("morning session is created from them")
+      val compoundEvent = MorningSession("_", events)
 
-        When("morning session is created from them")
-        val compoundEvent = MorningSession("_", events)
+      Then("its duration should be expected")
+      compoundEvent.duration shouldBe (70 minutes)
+    }
 
-        Then("its duration should be expected")
-        compoundEvent.duration shouldBe (60 minutes)
-      }
+    "events have different title & same duration" in {
 
-      "events have different title & duration" in {
+      Given("two events with different title & same duration")
+      val events = List(Talk("#1", 30), Talk("#2", 30))
 
-        Given("two events with different title & duration")
-        val events = List(Talk("#1", 30), Talk("#2", 40))
+      When("morning session is created from them")
+      val compoundEvent = MorningSession("_", events)
 
-        When("morning session is created from them")
-        val compoundEvent = MorningSession("_", events)
-
-        Then("its duration should be expected")
-        compoundEvent.duration shouldBe (70 minutes)
-      }
-
-      "events have different title & same duration" in {
-
-        Given("two events with different title & same duration")
-        val events = List(Talk("#1", 30), Talk("#2", 30))
-
-        When("morning session is created from them")
-        val compoundEvent = MorningSession("_", events)
-
-        Then("its duration should be expected")
-        compoundEvent.duration shouldBe (60 minutes)
-      }
+      Then("its duration should be expected")
+      compoundEvent.duration shouldBe (60 minutes)
     }
   }
 

@@ -1,4 +1,4 @@
-package agp.scheduling
+package agp.scheduler
 
 import agp.vo.{MorningSession, Talk}
 import org.scalamock.scalatest.MockFactory
@@ -7,16 +7,16 @@ import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 import scala.language.postfixOps
 
 
-class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
+class MorningSessionsSchedulerImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
 
-  "MorningSessionsSchedulingImpl" should {
+  "MorningSessionsSchedulerImpl" should {
 
     "throw" when {
 
       "given number of talks < required number of sessions" in {
 
         Given("morning sessions scheduling with required number of sessions = 3")
-        val scheduling = MorningSessionsSchedulingImpl(requiredSessionsNumber = 3)
+        val scheduling = MorningSessionsSchedulerImpl(requiredSessionsNumber = 3)
 
         Then("exception should be thrown when scheduling is applied to 2 talks")
         an[IllegalArgumentException] should be thrownBy scheduling(2 talks)
@@ -25,16 +25,16 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
       "given morning session scheduling throws exception" in {
 
         Given("morning session scheduling throwing exception")
-        List(newFailingSessionScheduling, // always throws SchedulingException
+        List(newFailingSessionScheduling,  // always throws SchedulingException
              newUniqueSessionScheduling(1) // returns result once, then throws
         ).foreach(sessionScheduling => {
 
           And("morning sessions scheduling using it")
-          val scheduling = new MorningSessionsSchedulingImpl(
+          val scheduling = new MorningSessionsSchedulerImpl(
             sessionScheduling, requiredSessionsNumber = 2)
 
           Then("exception should be thrown when scheduling is applied")
-          an[SchedulingException] should be thrownBy scheduling(2 talks)
+          an[SchedulerException] should be thrownBy scheduling(2 talks)
         })
       }
     }
@@ -48,7 +48,7 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
       val requiredSessionsNumber = 2
 
       And("morning sessions scheduling using them")
-      val scheduling = new MorningSessionsSchedulingImpl(
+      val scheduling = new MorningSessionsSchedulerImpl(
         sessionScheduling, requiredSessionsNumber)
 
       Then("no exception should be thrown")
@@ -68,7 +68,7 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
       val requiredSessionsNumber = 3
 
       And("morning sessions scheduling using them")
-      val scheduling = new MorningSessionsSchedulingImpl(
+      val scheduling = new MorningSessionsSchedulerImpl(
         sessionScheduling, requiredSessionsNumber)
 
       When("scheduling is applied to at least 3 talks")
@@ -86,7 +86,7 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
         sessionSchedulingResult(session("#6"), someTalks))
 
       And("morning sessions scheduling using them")
-      val scheduling = new MorningSessionsSchedulingImpl(
+      val scheduling = new MorningSessionsSchedulerImpl(
         sessionScheduling, requiredSessionsNumber = 2)
 
       When("scheduling is applied")
@@ -107,7 +107,7 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
         sessionSchedulingResult(someSession, uniqueTalks))
 
       And("morning sessions scheduling using them")
-      val scheduling = new MorningSessionsSchedulingImpl(
+      val scheduling = new MorningSessionsSchedulerImpl(
         sessionScheduling, requiredSessionsNumber = 2)
 
       When("scheduling is applied")
@@ -120,22 +120,22 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
 
   /* to create MorningSessionScheduling mocks */
 
-  def newFailingSessionScheduling: MorningSessionScheduling = setup(mock[MorningSessionScheduling]) {
-    it => it.apply _ expects * throwing new SchedulingException("_") anyNumberOfTimes()
+  def newFailingSessionScheduling: MorningSessionScheduler = setup(mock[MorningSessionScheduler]) {
+    it => it.apply _ expects * throwing new SchedulerException("_") anyNumberOfTimes()
   }
 
-  def newSuccessSessionScheduling: MorningSessionScheduling = setup(mock[MorningSessionScheduling]) {
+  def newSuccessSessionScheduling: MorningSessionScheduler = setup(mock[MorningSessionScheduler]) {
     it => it.apply _ expects * returning someSessionSchedulingResult anyNumberOfTimes()
   }
 
-  def newUniqueSessionScheduling(times: Int): MorningSessionScheduling = setup(mock[MorningSessionScheduling]) {
+  def newUniqueSessionScheduling(times: Int): MorningSessionScheduler = setup(mock[MorningSessionScheduler]) {
     it => (1 to times).foreach(i => {
       it.apply _ expects * returning sessionSchedulingResult(session("#" + i), someTalks)
     })
   }
 
-  def newSessionSchedulingReturning(results: MorningSessionSchedulingResult*): MorningSessionScheduling =
-    setup(mock[MorningSessionScheduling]) { it => results foreach (it.apply _ expects * returning _ ) }
+  def newSessionSchedulingReturning(results: MorningSessionSchedulerResult*): MorningSessionScheduler =
+    setup(mock[MorningSessionScheduler]) { it => results foreach (it.apply _ expects * returning _ ) }
 
   def setup[T](obj: T)(setup: T => Unit): T = {
     setup(obj)
@@ -144,11 +144,11 @@ class MorningSessionsSchedulingImplSpec extends WordSpec with Matchers with Give
 
   /* to create test MorningSessionSchedulingResult */
 
-  def someSessionSchedulingResult: MorningSessionSchedulingResult =
+  def someSessionSchedulingResult: MorningSessionSchedulerResult =
     sessionSchedulingResult(someSession, someTalks)
 
   def sessionSchedulingResult(session: MorningSession, unused: Set[Talk]) =
-    new MorningSessionSchedulingResult(session, unused)
+    new MorningSessionSchedulerResult(session, unused)
 
 
   /* to create test MorningSession */

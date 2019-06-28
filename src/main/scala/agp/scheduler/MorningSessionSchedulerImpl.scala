@@ -1,15 +1,16 @@
-package agp.scheduling
+package agp.scheduler
 
 import agp.vo.{MorningSession, Talk, TalksCombinations}
 import agp.weighting.KnapsackSolutionForTalks
 
 import scala.concurrent.duration.Duration
 
-private[scheduling] class MorningSessionSchedulingImpl
-(val knapsackSolution: Set[Talk] => TalksCombinations) extends (Set[Talk] => MorningSessionSchedulingResult) {
+private[scheduler] class MorningSessionSchedulerImpl(
+  val knapsackSolution: Set[Talk] => TalksCombinations
+) extends (Set[Talk] => MorningSessionSchedulerResult) {
 
   /* shorter alias for result type */
-  private type Result = MorningSessionSchedulingResult
+  private type Result = MorningSessionSchedulerResult
 
 
   def apply(talks: Set[Talk]): Result = {
@@ -26,18 +27,18 @@ private[scheduling] class MorningSessionSchedulingImpl
       .getOrElse(throw newException)
   }
 
-  private def newException = new SchedulingException(
+  private def newException = new SchedulerException(
     "Failed to schedule MorningSession with knapsack solution " +
     "for provided talks, because no possible combination " +
     "of talks conforms to required goal duration of event."
   )
 }
 
-object MorningSessionSchedulingImpl {
+object MorningSessionSchedulerImpl {
 
-  def using(goal: Duration): MorningSessionSchedulingImpl = MorningSessionSchedulingImpl
+  def using(goal: Duration): MorningSessionSchedulerImpl = MorningSessionSchedulerImpl
     .using((talks: Set[Talk]) => new KnapsackSolutionForTalks(talks)(goal))
 
-  def using(knapsackSolution: Set[Talk] => TalksCombinations): MorningSessionSchedulingImpl =
-    new MorningSessionSchedulingImpl(knapsackSolution)
+  def using(knapsackSolution: Set[Talk] => TalksCombinations): MorningSessionSchedulerImpl =
+    new MorningSessionSchedulerImpl(knapsackSolution)
 }
