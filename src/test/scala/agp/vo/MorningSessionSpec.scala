@@ -1,5 +1,6 @@
 package agp.vo
 
+import agp.vo.session.MorningSession
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 import scala.concurrent.duration._
@@ -14,7 +15,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
       val events = List(Talk("Title", 30), Talk("Title", 40))
 
       When("morning session is created from them")
-      val compoundEvent = MorningSession("_", events)
+      val compoundEvent = MorningSession(events)
 
       Then("its duration should be expected")
       compoundEvent.duration shouldBe (70 minutes)
@@ -26,7 +27,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
       val events = List(Talk("Title", 30), Talk("Title", 30))
 
       When("morning session is created from them")
-      val compoundEvent = MorningSession("_", events)
+      val compoundEvent = MorningSession(events)
 
       Then("its duration should be expected")
       compoundEvent.duration shouldBe (60 minutes)
@@ -38,7 +39,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
       val events = List(Talk("#1", 30), Talk("#2", 40))
 
       When("morning session is created from them")
-      val compoundEvent = MorningSession("_", events)
+      val compoundEvent = MorningSession(events)
 
       Then("its duration should be expected")
       compoundEvent.duration shouldBe (70 minutes)
@@ -50,7 +51,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
       val events = List(Talk("#1", 30), Talk("#2", 30))
 
       When("morning session is created from them")
-      val compoundEvent = MorningSession("_", events)
+      val compoundEvent = MorningSession(events)
 
       Then("its duration should be expected")
       compoundEvent.duration shouldBe (60 minutes)

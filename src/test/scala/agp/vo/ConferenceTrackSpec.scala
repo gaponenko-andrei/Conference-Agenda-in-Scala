@@ -34,7 +34,7 @@ class ConferenceTrackSpec extends WordSpec with GivenWhenThen with Matchers {
       When("track is built")
       val track = builder.build
 
-      Then("track should have expected events")
+      Then("it should have expected events")
       track should contain only(
         Scheduling(Talk("#1", 30), LocalTime.of(9, 0)),
         Scheduling(Talk("#2", 15), LocalTime.of(9, 30))

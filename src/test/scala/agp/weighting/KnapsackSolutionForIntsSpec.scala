@@ -137,9 +137,11 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
 
   /* utils */
 
-  def applySolution(ints: List[Int], goal: Int) = new KnapsackSolutionForInts(ints)(goal)
+  def applySolution(ints: List[Int], goal: Int) =
+    new KnapsackSolutionForInts(ints)(goal)
 
-  private def sorted(combinations: List[List[Int]]): List[List[Int]] = combinations.map(_.sortWith(_ > _))
+  private def sorted(combinations: List[List[Int]]): List[List[Int]] =
+    combinations.map(_.sortWith(_ > _))
 
   implicit final class Combination(product: Product) {
     def *(times: Int): List[List[Any]] = List.fill(times)(product.productIterator.toList)
