@@ -1,6 +1,6 @@
 package agp.composition
 
-import agp.vo.Talk
+import agp.vo.event.Talk
 import agp.vo.session.MorningSession
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}

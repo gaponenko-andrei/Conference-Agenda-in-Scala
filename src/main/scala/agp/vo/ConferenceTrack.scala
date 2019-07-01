@@ -2,6 +2,8 @@ package agp.vo
 
 import java.time.LocalTime
 
+import agp.vo.event.Event
+
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
 

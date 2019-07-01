@@ -1,7 +1,8 @@
 package agp.composition
 
 import agp.vo.session.MorningSession
-import agp.vo.{Talk, TalksCombinations}
+import agp.vo.TalksCombinations
+import agp.vo.event.Talk
 
 private[composition] class MorningSessionCompositionImpl(
   val knapsackSolution: Set[Talk] => TalksCombinations
@@ -11,7 +12,7 @@ private[composition] class MorningSessionCompositionImpl(
   private type Result = MorningSessionCompositionResult
 
 
-  def apply(talks: Set[Talk]): Result = {
+  override def apply(talks: Set[Talk]): Result = {
     require(talks.nonEmpty, "At least one talk is required.")
 
     findSuitableCombinationsAmong(talks).collectFirst {

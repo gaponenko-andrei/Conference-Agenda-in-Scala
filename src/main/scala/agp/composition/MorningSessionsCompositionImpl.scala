@@ -1,6 +1,7 @@
 package agp.composition
 
 import agp.vo._
+import agp.vo.event.Talk
 import agp.vo.session.MorningSession
 
 import scala.annotation.tailrec
@@ -34,7 +35,8 @@ private[composition] class MorningSessionsCompositionImpl(
   }
 
   private def validateNumberOf(talks: Set[Talk]): Unit = {
-    require(talks.size >= requiredSessionsNumber, s"Talks.size must be >= $requiredSessionsNumber.")
+    require(talks.size >= requiredSessionsNumber,
+      s"Talks.size must be >= $requiredSessionsNumber.")
   }
 
   private def composeSessionFrom(talks: Set[Talk]): MorningSessionCompositionResult = {

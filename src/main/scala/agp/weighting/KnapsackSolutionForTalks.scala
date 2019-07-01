@@ -1,6 +1,7 @@
 package agp.weighting
 
-import agp.vo.{Talk, TalksCombinations}
+import agp.vo.TalksCombinations
+import agp.vo.event.Talk
 
 import scala.concurrent.duration.Duration
 

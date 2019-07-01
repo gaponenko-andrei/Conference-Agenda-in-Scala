@@ -1,5 +1,7 @@
 package agp
 
+import agp.vo.event.Talk
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration.Duration._
 
@@ -9,8 +11,6 @@ package object vo {
     def title: String
     def duration: Duration
   }
-
-  abstract class Event extends EventLike
 
   type TalksCombinations = Set[Set[Talk]]
 

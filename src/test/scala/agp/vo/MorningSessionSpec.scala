@@ -1,5 +1,6 @@
 package agp.vo
 
+import agp.vo.event.Talk
 import agp.vo.session.MorningSession
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
@@ -12,7 +13,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
     "events have same title, but different duration" in {
 
       Given("two events with same title & different duration")
-      val events = List(Talk("Title", 30), Talk("Title", 40))
+      val events = Set(Talk("Title", 30), Talk("Title", 40))
 
       When("morning session is created from them")
       val compoundEvent = MorningSession(events)
@@ -24,7 +25,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
     "events have same title & same duration" in {
 
       Given("two events with same title & duration")
-      val events = List(Talk("Title", 30), Talk("Title", 30))
+      val events = Set(Talk("Title", 30), Talk("Title", 30))
 
       When("morning session is created from them")
       val compoundEvent = MorningSession(events)
@@ -36,7 +37,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
     "events have different title & duration" in {
 
       Given("two events with different title & duration")
-      val events = List(Talk("#1", 30), Talk("#2", 40))
+      val events = Set(Talk("#1", 30), Talk("#2", 40))
 
       When("morning session is created from them")
       val compoundEvent = MorningSession(events)
@@ -48,7 +49,7 @@ class MorningSessionSpec extends WordSpec with Matchers with GivenWhenThen {
     "events have different title & same duration" in {
 
       Given("two events with different title & same duration")
-      val events = List(Talk("#1", 30), Talk("#2", 30))
+      val events = Set(Talk("#1", 30), Talk("#2", 30))
 
       When("morning session is created from them")
       val compoundEvent = MorningSession(events)

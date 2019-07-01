@@ -1,6 +1,7 @@
 package agp.vo.session
 
-import agp.vo.{EventLike, Talk}
+import agp.vo.EventLike
+import agp.vo.event.Talk
 
 import scala.concurrent.duration.Duration
 
@@ -8,7 +9,7 @@ import scala.concurrent.duration.Duration
 
 sealed abstract class Session private[session](
   override val title: String,
-  private val events: List[Talk]
+  private val events: Set[Talk]
 ) extends Iterable[Talk] with EventLike {
 
   final override def iterator: Iterator[Talk] = events.iterator
@@ -19,24 +20,28 @@ sealed abstract class Session private[session](
 
 final case class MorningSession private(
   override val title: String,
-  private val events: List[Talk]
+  private val events: Set[Talk]
 ) extends Session(title, events)
 
 object MorningSession {
 
   def apply(events: Talk*): MorningSession =
-    new MorningSession("MorningSession", events.toList)
+    new MorningSession("MorningSession", events.toSet)
 
-  def apply(events: Iterable[Talk]): MorningSession =
-    new MorningSession("MorningSession", events.toList)
-
-  def apply(title: String, events: Iterable[Talk]): MorningSession =
-    new MorningSession(title, events.toList)
+  def apply(events: Set[Talk]): MorningSession =
+    new MorningSession("MorningSession", events)
 }
 
 // AfternoonSession
 
-class AfternoonSession private(
+final case class AfternoonSession private(
   override val title: String,
-  private val events: List[Talk]
+  private val events: Set[Talk]
 ) extends Session(title, events)
+
+object AfternoonSession {
+
+  def apply(events: Set[Talk]): AfternoonSession =
+    new AfternoonSession("AfternoonSession", events)
+
+}
