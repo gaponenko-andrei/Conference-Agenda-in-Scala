@@ -3,7 +3,6 @@ package agp.vo
 import java.time.LocalTime
 
 import agp.vo.ConferenceTrack.newBuilder
-import agp.vo.event.Talk
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 class ConferenceTrackSpec extends WordSpec with GivenWhenThen with Matchers {

@@ -1,8 +1,6 @@
 package agp.composition
 
-import agp.vo.session.MorningSession
-import agp.vo.TalksCombinations
-import agp.vo.event.Talk
+import agp.vo.{MorningSession, Talk, TalksCombinations}
 
 private[composition] class MorningSessionCompositionImpl(
   val knapsackSolution: Set[Talk] => TalksCombinations

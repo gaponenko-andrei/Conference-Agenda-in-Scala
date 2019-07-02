@@ -1,7 +1,6 @@
 package agp.composition
 
-import agp.vo.event.Talk
-import agp.vo.session.MorningSession
+import agp.vo.{MorningSession, Talk}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
@@ -146,8 +145,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   }
 
   def newUniqueSessionComposition(times: Int): MorningSessionComposition = setup(mock[MorningSessionComposition]) {
-    it =>
-      (1 to times).foreach(i => {
+    it => (1 to times).foreach(i => {
         it.apply _ expects * returning sessionCompositionResult(session("#" + i), someTalks)
       })
   }
@@ -166,7 +164,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
     sessionCompositionResult(someSession, someTalks)
 
   def sessionCompositionResult(session: MorningSession, unused: Set[Talk]) =
-    MorningSessionCompositionResult(session, unused)
+    new MorningSessionCompositionResult(session, unused)
 
 
   /* to create test MorningSession */

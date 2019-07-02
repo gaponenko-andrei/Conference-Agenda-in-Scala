@@ -1,13 +1,10 @@
-package agp.vo.session
-
-import agp.vo.EventLike
-import agp.vo.event.Talk
+package agp.vo
 
 import scala.concurrent.duration.Duration
 
 // Session
 
-sealed abstract class Session private[session](
+sealed abstract class Session protected(
   override val title: String,
   private val events: Set[Talk]
 ) extends Iterable[Talk] with EventLike {

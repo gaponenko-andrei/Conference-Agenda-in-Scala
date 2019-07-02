@@ -1,6 +1,4 @@
-package agp.vo.event
-
-import agp.vo.EventLike
+package agp.vo
 
 import scala.concurrent.duration.{Duration, MINUTES}
 

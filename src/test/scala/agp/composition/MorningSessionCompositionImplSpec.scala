@@ -1,7 +1,6 @@
 package agp.composition
 
-import agp.vo.TalksCombinations
-import agp.vo.event.Talk
+import agp.vo.{Talk, TalksCombinations}
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 class MorningSessionCompositionImplSpec extends WordSpec with Matchers with GivenWhenThen {

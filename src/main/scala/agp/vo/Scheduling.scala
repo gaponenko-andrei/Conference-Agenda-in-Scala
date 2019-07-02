@@ -2,8 +2,6 @@ package agp.vo
 
 import java.time.LocalTime
 
-import agp.vo.event.Event
-
 import scala.concurrent.duration.Duration
 
 final case class Scheduling(event: Event, startTime: LocalTime) extends EventLike {

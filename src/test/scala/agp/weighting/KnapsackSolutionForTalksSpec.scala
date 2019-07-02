@@ -1,6 +1,6 @@
 package agp.weighting
 
-import agp.vo.event.Talk
+import agp.vo.Talk
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 import scala.concurrent.duration._

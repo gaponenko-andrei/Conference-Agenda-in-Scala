@@ -1,8 +1,6 @@
 package agp.composition
 
-import agp.vo._
-import agp.vo.event.Talk
-import agp.vo.session.MorningSession
+import agp.vo.{MorningSession, Talk, _}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue

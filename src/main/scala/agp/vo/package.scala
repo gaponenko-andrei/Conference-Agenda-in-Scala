@@ -1,6 +1,6 @@
 package agp
 
-import agp.vo.event.Talk
+import agp.vo.Talk
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration.Duration._
