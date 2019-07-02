@@ -60,7 +60,7 @@ class AfternoonSessionsCompositionImplSpec extends WordSpec with Matchers with G
       })
     }
 
-    "result sessions with all given talks" in {
+    "result in sessions with all given talks" in {
 
       Given("afternoon session composition")
       val composition = new SessionsComposition(requiredSessionsNumber = 4)
@@ -71,9 +71,14 @@ class AfternoonSessionsCompositionImplSpec extends WordSpec with Matchers with G
       When("composition is applied")
       val result = composition(talks)
 
-      Then("result should sessions with all given talks")
-      result.unusedTalks shouldBe empty
+      Then("sessions should have all talks")
       result.sessions.flatten shouldBe talks
+
+      And("each session should have at least 2 talks")
+      result.sessions.foreach(_.size should be >= 2)
+
+      And("unused talks should be empty")
+      result.unusedTalks shouldBe empty
     }
   }
 
