@@ -90,7 +90,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
       When("composition is applied to at least 3 talks")
       val result = composition(3 talks)
 
-      Then("result should have 3 morning sessions")
+      Then("result should have 3 sessions")
       result.sessions.size shouldBe 3
     }
 

@@ -22,11 +22,11 @@ final case class MorningSession private(
 
 object MorningSession {
 
-  def apply(events: Talk*): MorningSession =
-    new MorningSession("MorningSession", events.toSet)
-
   def apply(events: Set[Talk]): MorningSession =
     new MorningSession("MorningSession", events)
+
+  def apply(events: Talk*): MorningSession =
+    new MorningSession("MorningSession", events.toSet)
 }
 
 // AfternoonSession
@@ -41,4 +41,6 @@ object AfternoonSession {
   def apply(events: Set[Talk]): AfternoonSession =
     new AfternoonSession("AfternoonSession", events)
 
+  def apply(events: Talk*): AfternoonSession =
+    new AfternoonSession("AfternoonSession", events.toSet)
 }

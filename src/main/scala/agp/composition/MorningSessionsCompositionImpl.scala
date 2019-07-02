@@ -1,6 +1,6 @@
 package agp.composition
 
-import agp.vo.{MorningSession, Talk, _}
+import agp.vo.{MorningSession, Talk}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -16,18 +16,17 @@ private[composition] class MorningSessionsCompositionImpl(
   private type Result = MorningSessionsCompositionResult
 
 
-  def apply(talks: Set[Talk]): Result = {
+  override def apply(talks: Set[Talk]): Result = {
     validateNumberOf(talks)
 
     @tailrec
-    def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession] = Queue()): Result = {
+    def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession] = Queue()): Result =
       if (sessions.size == requiredSessionsNumber) {
         new Result(sessions.toSet, unusedTalks)
       } else {
         val result = composeSessionFrom(unusedTalks)
         compose(result.unusedTalks, sessions :+ result.session)
       }
-    }
 
     compose(talks)
   }
