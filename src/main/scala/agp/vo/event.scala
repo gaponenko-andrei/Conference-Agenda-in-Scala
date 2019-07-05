@@ -1,6 +1,6 @@
 package agp.vo
 
-import scala.concurrent.duration.{Duration, MINUTES}
+import scala.concurrent.duration._
 
 // Event
 
@@ -20,6 +20,20 @@ sealed abstract class Event extends EventLike {
     val state = Seq(title)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+}
+
+// Lunch
+
+object Lunch extends Event {
+  override val title: String = "Lunch"
+  override val duration: Duration = 1 hour
+}
+
+// NetworkingEvent
+
+object NetworkingEvent extends Event {
+  override val title: String = "Networking Event"
+  override val duration: Duration = 2 hours
 }
 
 // Talk

@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 object Utils {
 
-  implicit class RichSeq[T](seq: Seq[T]) {
+  final implicit class RichSeq[T](seq: Seq[T]) {
     def equallyDividedInto(partitionsCount: Int): List[Seq[T]] = divideEqually(seq, partitionsCount)
   }
 
