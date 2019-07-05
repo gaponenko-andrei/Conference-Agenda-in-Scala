@@ -1,6 +1,7 @@
 package agp.vo
 
 import scala.concurrent.duration._
+import Talk.{MaxDuration, MinDuration}
 
 // Event
 
@@ -43,12 +44,18 @@ sealed abstract case class Talk private(
   override val duration: Duration
 ) extends Event {
 
-  private val min = duration.toMinutes
   require(title.nonEmpty, "Talk title must have some chars.")
-  require(min >= 5 && min <= 60, "Talk duration must be 5 <= minutes <= 60.")
+  require(
+    duration >= MinDuration && duration <= MaxDuration,
+    s"Talk duration must ∈ [$MinDuration, $MaxDuration]."
+  )
 }
 
 object Talk {
+
+  val MinDuration: Duration = 5 minutes
+  val MaxDuration: Duration = 60 minutes
+
   def apply(title: String, minutes: Int): Talk =
     new Talk(title.trim, Duration(minutes, MINUTES)) {}
 }
