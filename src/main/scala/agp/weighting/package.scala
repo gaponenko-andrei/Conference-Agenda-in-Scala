@@ -2,6 +2,7 @@ package agp
 
 package object weighting {
 
+  // todo think about introducing of abstract type instead of generic type
   trait Weighable[T <: Ordered[T]] extends Ordered[Weighable[T]] {
 
     def compare(other: Weighable[T]): Int =
