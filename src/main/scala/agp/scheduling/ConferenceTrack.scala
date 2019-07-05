@@ -1,6 +1,8 @@
-package agp.vo
+package agp.scheduling
 
 import java.time.LocalTime
+
+import agp.vo.{Event, EventLike}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration

@@ -1,8 +1,9 @@
-package agp.vo
+package agp.scheduling
 
 import java.time.LocalTime
 
-import agp.vo.ConferenceTrack.newBuilder
+import agp.scheduling.ConferenceTrack.newBuilder
+import agp.vo.Talk
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 class ConferenceTrackSpec extends WordSpec with GivenWhenThen with Matchers {
