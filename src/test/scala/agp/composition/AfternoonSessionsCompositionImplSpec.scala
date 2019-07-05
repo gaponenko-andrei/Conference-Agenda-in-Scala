@@ -84,6 +84,7 @@ class AfternoonSessionsCompositionImplSpec extends WordSpec with Matchers with G
 
   /* to create test entities */
 
+  // todo dry
   implicit class DummiesFactory(requiredCount: Int) {
     def talks: Set[Talk] = (1 to requiredCount).map(i => Talk(s"Title ${i + 1}", 5 + i)).toSet
   }

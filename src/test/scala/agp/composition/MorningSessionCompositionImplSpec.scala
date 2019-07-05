@@ -80,6 +80,7 @@ class MorningSessionCompositionImplSpec extends WordSpec with Matchers with Give
   def zeroCombinations: TalksCombinations = Set.empty[Set[Talk]]
   def someCombinations: TalksCombinations = Set(2 talks, 3 talks)
 
+  // todo dry
   implicit class DummiesFactory(requiredCount: Int) {
     def talks: Set[Talk] = (1 to requiredCount).map(i => Talk(s"Title ${i + 1}", 5 + i)).toSet
   }

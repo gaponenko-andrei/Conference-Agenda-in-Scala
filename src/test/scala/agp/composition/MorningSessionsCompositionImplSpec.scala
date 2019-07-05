@@ -177,6 +177,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
 
   def someTalks: Set[Talk] = 2 talks
 
+  // todo dry
   implicit class DummiesFactory(requiredCount: Int) {
     def talks: Set[Talk] = (1 to requiredCount).map(i => Talk(s"Title ${i + 1}", 5 + i)).toSet
   }
