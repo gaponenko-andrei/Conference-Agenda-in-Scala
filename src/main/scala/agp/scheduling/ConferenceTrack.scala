@@ -42,9 +42,9 @@ object ConferenceTrack {
       this
     }
 
-    def build: ConferenceTrack = build("Track")
+    def build: ConferenceTrack = buildWithTitle("Track")
 
-    def build(title: String): ConferenceTrack =
+    def buildWithTitle(title: String): ConferenceTrack =
       new ConferenceTrack(title, schedulings.toVector)
 
     private def scheduleFirst(event: Event): Unit =

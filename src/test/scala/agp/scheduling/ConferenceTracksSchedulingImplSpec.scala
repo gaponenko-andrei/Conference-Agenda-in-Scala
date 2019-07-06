@@ -46,42 +46,24 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
         Then("exception should be thrown when scheduling is applied")
         an[agp.scheduling.Exception] should be thrownBy scheduling(5 talks)
       }
-
-      "number of composed morning & afternoon sessions differs" in {
-
-        List((1, 0), (0, 1), (5, 6), (6, 5)).foreach { case (i, j) =>
-
-          Given(s"morning sessions composition returning $i sessions")
-          val msComposition = newMorningSessionsCompositionReturning(i morningSessions)
-
-          And(s"afternoon sessions composition returning $j sessions")
-          val asComposition = newAfternoonSessionsCompositionReturning(j afternoonSessions)
-
-          And("scheduling using them")
-          val scheduling = new Scheduling(msComposition, asComposition)
-
-          Then("exception should be thrown when scheduling is applied")
-          an[agp.scheduling.Exception] should be thrownBy scheduling(8 talks)
-        }
-      }
     }
 
-    "schedule tracks based on number of scheduled morning sessions" in {
+    "schedule tracks based on composed number of morning & afternoon sessions pairs" in {
 
-      List(0, 5, 10).foreach(n => {
+      List((0, 0), (0, 1), (1, 0), (10, 10)).foreach { case (i, j) =>
 
-        Given(s"morning sessions composition returning $n sessions")
-        val msComposition = newMorningSessionsCompositionReturning(n morningSessions)
+        Given(s"morning sessions composition returning $i sessions")
+        val msComposition = newMorningSessionsCompositionReturning(i morningSessions)
 
-        And(s"afternoon sessions composition returning $n sessions")
-        val asComposition = newAfternoonSessionsCompositionReturning(n afternoonSessions)
+        And(s"afternoon sessions composition returning $j sessions")
+        val asComposition = newAfternoonSessionsCompositionReturning(j afternoonSessions)
 
         When("scheduling using them is applied")
         val tracks = new Scheduling(msComposition, asComposition)(2 talks)
 
-        Then(s"number of tracks should be $n")
-        tracks.size shouldBe n
-      })
+        Then(s"number of tracks should be ${i min j}")
+        tracks.size shouldBe (i min j)
+      }
     }
 
     // todo check tracks are expected
