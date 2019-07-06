@@ -2,10 +2,12 @@ package agp.scheduling
 
 
 import agp.composition.{AfternoonSessionsComposition, MorningSessionsComposition}
+import agp.scheduling
 import agp.scheduling.ConferenceTracksSchedulingImpl.MinimumTrackDuration
 import agp.vo.Talk
 
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 class ConferenceTracksSchedulingImpl(
   val morningSessionsComposition: MorningSessionsComposition,
@@ -15,6 +17,14 @@ class ConferenceTracksSchedulingImpl(
 
   override def apply(talks: Set[Talk]): Set[ConferenceTrack] = {
     validateDurationOf(talks)
+
+    try {
+      morningSessionsComposition(talks)
+      afternoonSessionsComposition(talks)
+    } catch {
+      case NonFatal(ex) => throw newExceptionCausedBy(ex)
+    }
+
     Set()
   }
 
@@ -24,6 +34,9 @@ class ConferenceTracksSchedulingImpl(
       s"to schedule at least one track of morning & afternoon sessions."
     )
   }
+
+  private def newExceptionCausedBy(ex: Throwable) =
+    scheduling.Exception("Failed to schedule conference tracks.", ex)
 }
 
 object ConferenceTracksSchedulingImpl {

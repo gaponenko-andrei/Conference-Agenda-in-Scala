@@ -1,5 +1,6 @@
 package agp.scheduling
 
+import agp.TestUtils._
 import agp.composition._
 import agp.vo.{AfternoonSession, MorningSession, Talk}
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
@@ -7,13 +8,20 @@ import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen {
 
   /* shorter alias for tested type */
-  private type Scheduling = ConferenceTracksSchedulingImpl
+  type Scheduling = ConferenceTracksSchedulingImpl
+
+  /* morning sessions composition always returning some result */
+  lazy val newSuccessfulMorningSessionsComposition: MorningSessionsComposition = returning(
+    new MorningSessionsCompositionResult(2 morningSessions, unusedTalks = 5 hourTalks))
+
+  /* afternoon sessions composition always returning some result */
+  lazy val newSuccessfulAfternoonSessionsComposition: AfternoonSessionsComposition = returning(
+    new AfternoonSessionsCompositionResult(2 afternoonSessions, unusedTalks = Set.empty))
 
   /* scheduling that always returns some results */
-  private val validScheduling = new Scheduling(
+  val validScheduling = new Scheduling(
     newSuccessfulMorningSessionsComposition,
-    newSuccessfulAfternoonSessionsComposition
-  )
+    newSuccessfulAfternoonSessionsComposition)
 
 
   "ConferenceTracksSchedulingImpl" should {
@@ -31,6 +39,36 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
 
         Then("exception should be thrown when scheduling is applied")
         an[IllegalArgumentException] should be thrownBy validScheduling(talks)
+      }
+
+      "morning sessions composition throws exception" in {
+
+        Given("morning sessions composition throwing exception")
+        val msComposition = throwing(new RuntimeException("_"))
+
+        And("successful afternoon sessions composition")
+        val asComposition = newSuccessfulAfternoonSessionsComposition
+
+        And("scheduling using them")
+        val scheduling = new Scheduling(msComposition, asComposition)
+
+        Then("exception should be thrown when scheduling is applied")
+        an[agp.scheduling.Exception] should be thrownBy scheduling(5 hourTalks)
+      }
+
+      "afternoon sessions composition throws exception" in {
+
+        Given("successful morning sessions composition")
+        val msComposition = newSuccessfulMorningSessionsComposition
+
+        And("afternoon sessions composition throwing exception")
+        val asComposition = throwing(new RuntimeException("_"))
+
+        And("scheduling using them")
+        val scheduling = new Scheduling(msComposition, asComposition)
+
+        Then("exception should be thrown when scheduling is applied")
+        an[agp.scheduling.Exception] should be thrownBy scheduling(5 hourTalks)
       }
     }
 
@@ -50,15 +88,6 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
 
   /* utils */
 
-  def newSuccessfulMorningSessionsComposition: MorningSessionsComposition =
-    _ => new MorningSessionsCompositionResult(sessions = 2 morningSessions, unusedTalks = 5 hourTalks)
-
-  def newSuccessfulAfternoonSessionsComposition: AfternoonSessionsComposition =
-    _ => new AfternoonSessionsCompositionResult(sessions = 2 afternoonSessions, unusedTalks = Set())
-
-
-  private val someTalks: Set[Talk] = 2 hourTalks
-
   // todo dry
   implicit class DummiesFactory(requiredCount: Int) {
 
@@ -67,11 +96,11 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       .toSet
 
     def morningSessions: Set[MorningSession] = (1 to requiredCount)
-      .map(i => MorningSession(s"Morning Session $i", someTalks))
+      .map(i => MorningSession(s"Morning Session $i", 2 hourTalks))
       .toSet
 
     def afternoonSessions: Set[AfternoonSession] = (1 to requiredCount)
-      .map(i => AfternoonSession(s"Afternoon Session $i", someTalks))
+      .map(i => AfternoonSession(s"Afternoon Session $i", 2 hourTalks))
       .toSet
   }
 }
