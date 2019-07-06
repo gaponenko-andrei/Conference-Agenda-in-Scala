@@ -1,5 +1,6 @@
 package agp.composition
 
+import agp.composition
 import agp.vo.{MorningSession, Talk}
 
 import scala.annotation.tailrec
@@ -20,7 +21,7 @@ private[composition] class MorningSessionsCompositionImpl(
     validateNumberOf(talks)
 
     @tailrec
-    def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession] = Queue()): Result =
+    def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession]): Result =
       if (sessions.size == requiredSessionsNumber) {
         new Result(sessions.toSet, unusedTalks)
       } else {
@@ -28,7 +29,7 @@ private[composition] class MorningSessionsCompositionImpl(
         compose(result.unusedTalks, sessions :+ result.session)
       }
 
-    compose(talks)
+    compose(talks, sessions = Queue())
   }
 
   private def validateNumberOf(talks: Set[Talk]): Unit = {
@@ -44,7 +45,7 @@ private[composition] class MorningSessionsCompositionImpl(
     }
   }
 
-  private def newExceptionCausedBy(ex: Throwable) = CompositionException(
+  private def newExceptionCausedBy(ex: Throwable) = composition.Exception(
     "Failed to compose required number of morning " +
     "sessions with given MorningSessionComposition.", ex
   )

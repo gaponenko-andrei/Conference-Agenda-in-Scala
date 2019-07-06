@@ -16,9 +16,7 @@ package object composition {
   type AfternoonSessionCompositionResult = SessionCompositionResult[AfternoonSession]
   type AfternoonSessionsCompositionResult = SessionsCompositionResult[AfternoonSession]
 
-
   /* specialized exception */
-  final case class CompositionException(
-    msg: String, cause: Throwable = null
-  ) extends RuntimeException(msg, cause)
+  final case class Exception private[composition](message: String, cause: Throwable = null)
+    extends RuntimeException(message, cause)
 }

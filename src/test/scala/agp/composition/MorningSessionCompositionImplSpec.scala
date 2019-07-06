@@ -37,7 +37,7 @@ class MorningSessionCompositionImplSpec extends WordSpec with Matchers with Give
         val talks = Set(Talk("#1", 30), Talk("#2", 30))
 
         Then("exception should be thrown when composition is applied")
-        an[CompositionException] should be thrownBy composition(talks)
+        an[agp.composition.Exception] should be thrownBy composition(talks)
       }
     }
 

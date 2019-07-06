@@ -1,5 +1,6 @@
 package agp.composition
 
+import agp.composition
 import agp.vo.{MorningSession, Talk}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
@@ -50,7 +51,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
             sessionComposition, requiredSessionsNumber = 2)
 
           Then("exception should be thrown when composition is applied")
-          an[CompositionException] should be thrownBy composition(2 talks)
+          an[agp.composition.Exception] should be thrownBy composition(2 talks)
         })
       }
     }
@@ -137,7 +138,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   /* to create MorningSessionComposition mocks */
 
   def newFailingSessionComposition: MorningSessionComposition = setup(mock[MorningSessionComposition]) {
-    it => it.apply _ expects * throwing CompositionException("_") anyNumberOfTimes()
+    it => it.apply _ expects * throwing composition.Exception("_") anyNumberOfTimes() // todo
   }
 
   def newSuccessSessionComposition: MorningSessionComposition = setup(mock[MorningSessionComposition]) {
