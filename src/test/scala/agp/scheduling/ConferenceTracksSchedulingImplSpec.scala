@@ -1,22 +1,25 @@
 package agp.scheduling
 
+import java.util.UUID._
+
 import agp.TestUtils._
 import agp.composition._
 import agp.vo.{AfternoonSession, MorningSession, Talk}
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
-class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen {
+class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
 
   /* shorter alias for tested type */
   type Scheduling = ConferenceTracksSchedulingImpl
 
   /* morning sessions composition always returning some result */
-  lazy val newSuccessfulMorningSessionsComposition: MorningSessionsComposition = returning(
-    new MorningSessionsCompositionResult(2 morningSessions, unusedTalks = 5 hourTalks))
+  lazy val newSuccessfulMorningSessionsComposition: MorningSessionsComposition =
+    newMorningSessionsCompositionReturning(2 morningSessions)
 
   /* afternoon sessions composition always returning some result */
-  lazy val newSuccessfulAfternoonSessionsComposition: AfternoonSessionsComposition = returning(
-    new AfternoonSessionsCompositionResult(2 afternoonSessions, unusedTalks = Set.empty))
+  lazy val newSuccessfulAfternoonSessionsComposition: AfternoonSessionsComposition =
+    newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
   /* scheduling that always returns some results */
   val validScheduling = new Scheduling(
@@ -29,7 +32,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
     "throw" when {
 
       "no talks were provided" in {
-        an[IllegalArgumentException] should be thrownBy validScheduling(Set())
+        an[IllegalArgumentException] should be thrownBy validScheduling(Set.empty)
       }
 
       "overall duration of talks < 185 minutes" in {
@@ -84,23 +87,56 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       }
     }
 
+    "schedule expected number of tracks" when {
+
+      "talks duration is sufficient for one track" in {
+
+        Given("morning sessions composition returning one session")
+        val msComposition = newMorningSessionsCompositionReturning(1 morningSessions)
+
+        And("afternoon sessions composition returning one session")
+        val asComposition = newAfternoonSessionsCompositionReturning(1 afternoonSessions)
+
+        And("scheduling using them")
+        val scheduling = new Scheduling(msComposition, asComposition)
+
+        When("scheduling is applied")
+        val tracks = scheduling(4 hourTalks)
+
+        Then("only one track should be scheduled")
+        tracks.size shouldBe 1
+      }
+
+      // todo test "how much we need == how much we have"
+    }
   }
 
   /* utils */
+
+  /* morning sessions composition always returning specific result */
+  def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition =
+    returning(new MorningSessionsCompositionResult(sessions, unusedTalks = 5 hourTalks))
+
+  /* afternoon sessions composition always returning specific result */
+  def newAfternoonSessionsCompositionReturning(sessions: Set[AfternoonSession]): AfternoonSessionsComposition =
+    returning(new AfternoonSessionsCompositionResult(sessions, unusedTalks = Set.empty))
+
 
   // todo dry
   implicit class DummiesFactory(requiredCount: Int) {
 
     def hourTalks: Set[Talk] = (1 to requiredCount)
-      .map(i => Talk(s"Title $i", 60))
+      .map(i => Talk(uniqueTitle, 60))
       .toSet
 
     def morningSessions: Set[MorningSession] = (1 to requiredCount)
-      .map(i => MorningSession(s"Morning Session $i", 2 hourTalks))
+      .map(i => MorningSession(uniqueTitle, 2 hourTalks))
       .toSet
 
     def afternoonSessions: Set[AfternoonSession] = (1 to requiredCount)
-      .map(i => AfternoonSession(s"Afternoon Session $i", 2 hourTalks))
+      .map(i => AfternoonSession(uniqueTitle, 2 hourTalks))
       .toSet
+
+    private def uniqueTitle: String = randomUUID.toString
   }
 }

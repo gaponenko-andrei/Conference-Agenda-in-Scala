@@ -19,13 +19,29 @@ class ConferenceTracksSchedulingImpl(
     validateDurationOf(talks)
 
     try {
-      morningSessionsComposition(talks)
-      afternoonSessionsComposition(talks)
+      val morningSessionsCompositionResult = morningSessionsComposition(talks)
+      val morningSessions = morningSessionsCompositionResult.sessions
+      val unusedTalks = morningSessionsCompositionResult.unusedTalks
+
+      val afternoonSessionsCompositionResult = afternoonSessionsComposition(unusedTalks)
+      val afternoonSessions = afternoonSessionsCompositionResult.sessions
+
+      assume(morningSessions.size == afternoonSessions.size)
+      val tuples = (morningSessions zip afternoonSessions).toVector
+
+      val result = for (i <- tuples.indices) yield {
+        val (morningSession, afternoonSession) = tuples(i)
+        ConferenceTrack.newBuilder
+          .schedule(morningSession)
+          .schedule(afternoonSession)
+          .build(s"Track ${i + 1}")
+      }
+
+      result.toSet
+
     } catch {
       case NonFatal(ex) => throw newExceptionCausedBy(ex)
     }
-
-    Set()
   }
 
   private def validateDurationOf(talks: Set[Talk]): Unit = {

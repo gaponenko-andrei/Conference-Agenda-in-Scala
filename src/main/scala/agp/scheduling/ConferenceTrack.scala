@@ -25,7 +25,9 @@ object ConferenceTrack {
     private val startTime = LocalTime.of(9, 0)
     private val schedulings = new ArrayBuffer[Scheduling]
 
-    def schedule(sequence: Event*): Builder = {
+    def schedule(sequence: Event*): Builder = schedule(sequence.toIterable)
+
+    def schedule(sequence: Iterable[Event]): Builder = {
       sequence.foreach(schedule)
       this
     }
