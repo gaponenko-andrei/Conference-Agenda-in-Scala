@@ -15,10 +15,10 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   private type SessionsComposition = MorningSessionsCompositionImpl
 
   /* morning session composition always throwing exception */
-  lazy val newThrowingSessionComposition: MorningSessionComposition = throwing(composition.Exception("_"))
+  lazy val newThrowingSessionComposition: MorningSessionComposition = _ => throw composition.Exception("_")
 
   /* morning session composition always returning some result */
-  lazy val newSuccessfulSessionComposition: MorningSessionComposition = returning(someSessionCompositionResult)
+  lazy val newSuccessfulSessionComposition: MorningSessionComposition = _ => someSessionCompositionResult
 
 
   "MorningSessionsCompositionImpl" should {

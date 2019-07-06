@@ -3,7 +3,6 @@ package agp.scheduling
 
 import agp.composition.{AfternoonSessionsComposition, MorningSessionsComposition}
 import agp.scheduling
-import agp.scheduling.ConferenceTracksSchedulingImpl.MinimumTrackDuration
 import agp.vo.Talk
 
 import scala.concurrent.duration._
@@ -16,17 +15,18 @@ class ConferenceTracksSchedulingImpl(
 
 
   override def apply(talks: Set[Talk]): Set[ConferenceTrack] = {
-    validateDurationOf(talks)
 
     try {
       val morningSessionsCompositionResult = morningSessionsComposition(talks)
       val morningSessions = morningSessionsCompositionResult.sessions
+
       val unusedTalks = morningSessionsCompositionResult.unusedTalks
 
       val afternoonSessionsCompositionResult = afternoonSessionsComposition(unusedTalks)
       val afternoonSessions = afternoonSessionsCompositionResult.sessions
+      if (morningSessions.size != afternoonSessions.size)
+        throw scheduling.Exception("Scheduled number of morning & afternoon sessions differs.")
 
-      assume(morningSessions.size == afternoonSessions.size)
       val tuples = (morningSessions zip afternoonSessions).toVector
 
       val result = for (i <- tuples.indices) yield {
@@ -40,19 +40,10 @@ class ConferenceTracksSchedulingImpl(
       result.toSet
 
     } catch {
-      case NonFatal(ex) => throw newExceptionCausedBy(ex)
+      case NonFatal(ex) => throw scheduling.Exception("Failed to schedule conference tracks.", ex)
     }
   }
 
-  private def validateDurationOf(talks: Set[Talk]): Unit = {
-    require(talks.duration >= MinimumTrackDuration,
-      s"Overall duration of talks must be >= $MinimumTrackDuration " +
-      s"to schedule at least one track of morning & afternoon sessions."
-    )
-  }
-
-  private def newExceptionCausedBy(ex: Throwable) =
-    scheduling.Exception("Failed to schedule conference tracks.", ex)
 }
 
 object ConferenceTracksSchedulingImpl {

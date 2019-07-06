@@ -6,8 +6,4 @@ object TestUtils {
     setup(obj)
     obj
   }
-
-  def returning[T, U](value: U): T => U = _ => value
-
-  def throwing[T](exception: Throwable): Any => Nothing = _ => throw exception
 }
