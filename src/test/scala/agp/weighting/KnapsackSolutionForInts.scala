@@ -20,36 +20,30 @@ class KnapsackSolutionForInts(ints: List[Int]) {
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
 
-  private def adaptForGeneralSolution(ints: Combination)
-  : WCombination = ints.map(new WeighableInt(_))
+  private def adaptForGeneralSolution(ints: Combination): WCombination = ints.map(WeighableInt)
 
-  private def adaptForGeneralSolution(i: Int)
-  : WeighableInt = new WeighableInt(i)
+  private def adaptForGeneralSolution(i: Int): WeighableInt = WeighableInt(i)
 
 
   /* Methods to simplify (unwrap) result of general solution into client-known types */
 
   private def simplifyCombinations(combinations: WCombinations)
-  : Combinations = combinations.map(simplifyCombination)
+  : Combinations = combinations map simplifyCombination
 
   private def simplifyCombination(combination: WCombination)
-  : Combination = combination.map(_.weight.value)
+  : Combination = combination map (_.weight.value)
 
 
   /* Auxiliary classes */
 
-  private final class WeighableInt(i: Int) extends agp.weighting.Weighable[OrderedInt] {
-    val ordered = new OrderedInt(i)
-
+  private final case class WeighableInt(i: Int) extends agp.weighting.Weighable[OrderedInt] {
+    private val ordered = OrderedInt(i)
     def weight: OrderedInt = ordered
-
     def isPositive: Boolean = ordered.value > 0
-
-    def -(other: OrderedInt): WeighableInt = new WeighableInt(ordered.value - other.value)
+    def -(other: OrderedInt): WeighableInt = WeighableInt(ordered.value - other.value)
   }
 
-  private final class OrderedInt(val value: Int) extends Ordered[OrderedInt] {
+  private final case class OrderedInt(value: Int) extends Ordered[OrderedInt] {
     def compare(other: OrderedInt): Int = this.value - other.value
   }
-
 }

@@ -20,10 +20,10 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
   /* Methods to adapt (wrap) arguments for contract of general solution */
 
   private def adaptForGeneralSolution(talks: Set[Talk])
-  : WCombination = talks.map(new WeighableTalk(_)).toList
+  : WCombination = talks.map(WeighableTalk).toList
 
   private def adaptForGeneralSolution(duration: Duration)
-  : WeighableDuration = new WeighableDuration(duration)
+  : WeighableDuration = WeighableDuration(duration)
 
 
   /* Methods to simplify (unwrap) result of general solution into client-known types */
@@ -37,20 +37,15 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
 
   /* Auxiliary classes */
 
-  private final class WeighableTalk(val value: Talk) extends Weighable[Duration] {
-
+  private final case class WeighableTalk(value: Talk) extends Weighable[Duration] {
     def weight: Duration = value.duration
-
     def isPositive: Boolean = this.weight.toMillis > 0
-
-    def -(otherWeight: Duration): Weighable[Duration] = new WeighableDuration(this.weight - otherWeight)
+    def -(otherWeight: Duration): Weighable[Duration] = WeighableDuration(this.weight - otherWeight)
   }
 
-  private final class WeighableDuration(val weight: Duration) extends Weighable[Duration] {
-
+  private final case class WeighableDuration(weight: Duration) extends Weighable[Duration] {
     def isPositive: Boolean = weight.toMillis > 0
-
-    def -(otherWeight: Duration): Weighable[Duration] = new WeighableDuration(weight - otherWeight)
+    def -(otherWeight: Duration): Weighable[Duration] = WeighableDuration(weight - otherWeight)
   }
 
 }
