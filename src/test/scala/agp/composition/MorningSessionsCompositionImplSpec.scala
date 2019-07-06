@@ -1,5 +1,6 @@
 package agp.composition
 
+import agp.TestUtils._
 import agp.composition
 import agp.vo.{MorningSession, Talk}
 import org.scalamock.scalatest.MockFactory
@@ -13,6 +14,12 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   /* shorter alias for tested type */
   private type SessionsComposition = MorningSessionsCompositionImpl
 
+  /* morning session composition always throwing exception */
+  lazy val newThrowingSessionComposition: MorningSessionComposition = throwing(composition.Exception("_"))
+
+  /* morning session composition always returning some result */
+  lazy val newSuccessfulSessionComposition: MorningSessionComposition = returning(someSessionCompositionResult)
+
 
   "MorningSessionsCompositionImpl" should {
 
@@ -21,7 +28,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
       "given number of talks < required number of sessions" in {
 
         Given("morning session composition always returning result")
-        val sessionComposition = newSuccessSessionComposition
+        val sessionComposition = newSuccessfulSessionComposition
 
         And("required number of sessions = 3")
         val requiredSessionsNumber = 3
@@ -42,7 +49,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
       "given morning session composition throws exception" in {
 
         Given("morning session composition throwing exception")
-        List(newFailingSessionComposition,  // always throws CompositionException
+        List(newThrowingSessionComposition, // always throws CompositionException
              newUniqueSessionComposition(1) // returns result once, then throws
         ).foreach(sessionComposition => {
 
@@ -59,7 +66,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
     "not throw when given number of talks >= required number of sessions" in {
 
       Given("morning session composition always returning result")
-      val sessionComposition = newSuccessSessionComposition
+      val sessionComposition = newSuccessfulSessionComposition
 
       And("required number of sessions = 2")
       val requiredSessionsNumber = 2
@@ -137,14 +144,6 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
 
   /* to create MorningSessionComposition mocks */
 
-  def newFailingSessionComposition: MorningSessionComposition = setup(mock[MorningSessionComposition]) {
-    it => it.apply _ expects * throwing composition.Exception("_") anyNumberOfTimes() // todo
-  }
-
-  def newSuccessSessionComposition: MorningSessionComposition = setup(mock[MorningSessionComposition]) {
-    it => it.apply _ expects * returning someSessionCompositionResult anyNumberOfTimes()
-  }
-
   def newUniqueSessionComposition(times: Int): MorningSessionComposition = setup(mock[MorningSessionComposition]) {
     it => (1 to times).foreach(i => {
         it.apply _ expects * returning sessionCompositionResult(session("#" + i), someTalks)
@@ -154,10 +153,6 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   def newSessionCompositionReturning(results: MorningSessionCompositionResult*): MorningSessionComposition =
     setup(mock[MorningSessionComposition]) { it => results foreach (it.apply _ expects * returning _) }
 
-  def setup[T](obj: T)(setup: T => Unit): T = {
-    setup(obj)
-    obj
-  }
 
   /* to create test MorningSessionCompositionResult */
 
