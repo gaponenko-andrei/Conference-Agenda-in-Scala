@@ -3,7 +3,7 @@ package agp.scheduling
 import java.util.UUID._
 
 import agp.composition._
-import agp.vo.{AfternoonSession, MorningSession, Talk}
+import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
@@ -58,23 +58,64 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
         And(s"afternoon sessions composition returning $j sessions")
         val asComposition = newAfternoonSessionsCompositionReturning(j afternoonSessions)
 
-        When("scheduling using them is applied")
-        val tracks = new Scheduling(msComposition, asComposition)(2 talks)
+        When("scheduling using them is applied to some talks")
+        val tracks = new Scheduling(msComposition, asComposition)(someTalks)
 
         Then(s"number of tracks should be ${i min j}")
         tracks.size shouldBe (i min j)
       }
     }
 
-    // todo check tracks are expected
+    "schedule tracks with expected talks" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val morningSessions = 2 morningSessions
+      val msComposition = newMorningSessionsCompositionReturning(morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val afternoonSessions = 2 afternoonSessions
+      val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val tracks = new Scheduling(msComposition, asComposition)(someTalks)
+
+      Then("tracks should have expected talks")
+      val morningTalks = morningSessions.flatten
+      val afternoonTalks = afternoonSessions.flatten
+      talksOf(tracks) shouldBe (morningTalks ++ afternoonTalks)
+    }
+
+    "schedule tracks with Lunch & NetworkingEvent" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val tracks = new Scheduling(msComposition, asComposition)(someTalks)
+
+      Then("each track should contain scheduling of Lunch & NetworkingEvent")
+      tracks.foreach(eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
+    }
   }
 
+  /* utils */
+
+  def someTalks: Set[Talk] = 2 talks
+
+  def eventsOf(track: ConferenceTrack): Set[Event] =
+    track.collect { case Scheduling(event: Event, _) => event }
+
+  def talksOf(tracks: Set[ConferenceTrack]): Set[Talk] =
+    tracks.flatten.collect { case Scheduling(event: Talk, _) => event }
+
   def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition =
-    _ => new MorningSessionsCompositionResult(sessions, unusedTalks = 5 talks)
+    _ => new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks)
 
   def newAfternoonSessionsCompositionReturning(sessions: Set[AfternoonSession]): AfternoonSessionsComposition =
     _ => new AfternoonSessionsCompositionResult(sessions, unusedTalks = Set.empty)
-
 
   // todo dry
   implicit class DummiesFactory(requiredCount: Int) {

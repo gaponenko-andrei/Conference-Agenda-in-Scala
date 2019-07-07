@@ -20,18 +20,18 @@ class ConferenceTracksSchedulingImpl(
 
   override def apply(talks: Talks): Tracks = {
     val (morningSessions, afternoonSessions) = composeSessionsFrom(talks)
-    val zippedSessions = (morningSessions zip afternoonSessions).toVector
-    scheduleTracksBasedOn(zippedSessions)
+    scheduleTracksBasedOn(morningSessions zip afternoonSessions)
   }
 
   private def composeSessionsFrom(talks: Talks): (MorningSessions, AfternoonSessions) = {
     val (morningSessions, unusedTalks) = composeMorningSessionsFrom(talks).asPair
-    val afternoonSessions = composeAfternoonSessionsFrom(unusedTalks).sessions
-    (morningSessions, afternoonSessions)
+    (morningSessions, composeAfternoonSessionsFrom(unusedTalks))
   }
 
-  private def scheduleTracksBasedOn(sessions: Seq[(MorningSession, AfternoonSession)]): Tracks =
-    (for (i <- sessions.indices) yield newTrack(s"Track ${i + 1}", sessions(i))).toSet
+  private def scheduleTracksBasedOn(sessions: Set[(MorningSession, AfternoonSession)]): Tracks = {
+    val sessionsSeq = sessions.toVector
+    for (i <- sessionsSeq.indices) yield newTrack(s"Track ${i + 1}", sessionsSeq(i))
+  }.toSet
 
   private def newTrack(title: String, sessions: (MorningSession, AfternoonSession)): ConferenceTrack =
     ConferenceTrack.newBuilder
@@ -47,16 +47,16 @@ class ConferenceTracksSchedulingImpl(
     try {
       morningSessionsComposition(talks)
     } catch {
-      case NonFatal(ex) => throw newExceptionCausesBy(ex)
+      case NonFatal(ex) => throw newExceptionCausedBy(ex)
     }
 
-  private def composeAfternoonSessionsFrom: AfternoonSessionsComposition = talks =>
+  private def composeAfternoonSessionsFrom: Talks => AfternoonSessions = talks =>
     try {
-      afternoonSessionsComposition(talks)
+      afternoonSessionsComposition(talks).sessions
     } catch {
-      case NonFatal(ex) => throw newExceptionCausesBy(ex)
+      case NonFatal(ex) => throw newExceptionCausedBy(ex)
     }
 
-  private def newExceptionCausesBy(ex: Throwable) =
+  private def newExceptionCausedBy(ex: Throwable) =
     scheduling.Exception("Failed to schedule conference tracks.", ex)
 }

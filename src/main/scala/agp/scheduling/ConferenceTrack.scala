@@ -9,11 +9,14 @@ import scala.concurrent.duration.Duration
 
 final case class ConferenceTrack private(
   override val title: String,
-  private val schedulings: Vector[Scheduling]
-) extends Iterable[Scheduling] with EventLike {
+  private val schedulings: Set[Scheduling]
+) extends Set[Scheduling] with EventLike {
 
   override def duration: Duration = schedulings.duration
   override def iterator: Iterator[Scheduling] = schedulings.iterator
+  override def contains(elem: Scheduling): Boolean = schedulings.contains(elem)
+  override def +(elem: Scheduling): Set[Scheduling] = throw new UnsupportedOperationException
+  override def -(elem: Scheduling): Set[Scheduling] = throw new UnsupportedOperationException
 }
 
 object ConferenceTrack {
@@ -45,7 +48,7 @@ object ConferenceTrack {
     def build: ConferenceTrack = buildWithTitle("Track")
 
     def buildWithTitle(title: String): ConferenceTrack =
-      new ConferenceTrack(title, schedulings.toVector)
+      new ConferenceTrack(title, schedulings.toSet)
 
     private def scheduleFirst(event: Event): Unit =
       schedulings.append(Scheduling(event, startTime))
