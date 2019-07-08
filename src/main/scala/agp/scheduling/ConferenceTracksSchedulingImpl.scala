@@ -20,7 +20,7 @@ class ConferenceTracksSchedulingImpl(
 
   override def apply(talks: Talks): Tracks = {
     val (morningSessions, afternoonSessions) = composeSessionsFrom(talks)
-    scheduleTracksBasedOn(morningSessions zip afternoonSessions)
+    scheduleTracksBasedOn(pairedSessions = morningSessions zip afternoonSessions)
   }
 
   private def composeSessionsFrom(talks: Talks): (MorningSessions, AfternoonSessions) = {
@@ -28,10 +28,8 @@ class ConferenceTracksSchedulingImpl(
     (morningSessions, composeAfternoonSessionsFrom(unusedTalks))
   }
 
-  private def scheduleTracksBasedOn(sessions: Set[(MorningSession, AfternoonSession)]): Tracks = {
-    val sessionsSeq = sessions.toVector
-    for (i <- sessionsSeq.indices) yield newTrack(s"Track ${i + 1}", sessionsSeq(i))
-  }.toSet
+  private def scheduleTracksBasedOn(pairedSessions: Set[(MorningSession, AfternoonSession)]): Tracks =
+    pairedSessions.zipWithIndex map { case (pair, i) => newTrack(s"Track ${i + 1}", pair) }
 
   private def newTrack(title: String, sessions: (MorningSession, AfternoonSession)): ConferenceTrack =
     ConferenceTrack.newBuilder
