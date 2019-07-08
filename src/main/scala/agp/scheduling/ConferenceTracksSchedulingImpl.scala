@@ -29,7 +29,7 @@ class ConferenceTracksSchedulingImpl(
   }
 
   private def scheduleTracksBasedOn(pairedSessions: Set[(MorningSession, AfternoonSession)]): Tracks =
-    pairedSessions.zipWithIndex map { case (pair, i) => newTrack(s"Track ${i + 1}", pair) }
+    pairedSessions.zipWithIndex map { case (pair, i) => newTrack(s"Track #${i + 1}", pair) }
 
   private def newTrack(title: String, sessions: (MorningSession, AfternoonSession)): ConferenceTrack =
     ConferenceTrack.newBuilder

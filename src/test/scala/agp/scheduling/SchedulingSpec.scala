@@ -3,11 +3,11 @@ package agp.scheduling
 import java.time.LocalTime
 
 import agp.vo.{Lunch, NetworkingEvent, Talk}
-import org.scalatest.WordSpec
+import org.scalatest.{Matchers, WordSpec}
 
-class SchedulingSpec extends WordSpec {
+class SchedulingSpec extends WordSpec with Matchers {
 
-  "Sheduling" should {
+  "Scheduling" should {
 
     "be equal to other scheduling when they have same event & start time" in {
       Scheduling(Talk("Title", 30), LocalTime.of(10, 0)) ===
@@ -23,5 +23,19 @@ class SchedulingSpec extends WordSpec {
       Scheduling(Lunch, LocalTime.of(10, 0)) !==
       Scheduling(NetworkingEvent, LocalTime.of(10, 0))
     }
+
+    "be sorted using start time by default" in {
+      List(
+        Scheduling(Talk("#1", 30), LocalTime.of(11, 0)),
+        Scheduling(Talk("#2", 30), LocalTime.of(10, 0)),
+        Scheduling(Talk("#3", 30), LocalTime.of(12, 0))
+      ).sorted shouldBe List(
+        Scheduling(Talk("#2", 30), LocalTime.of(10, 0)),
+        Scheduling(Talk("#1", 30), LocalTime.of(11, 0)),
+        Scheduling(Talk("#3", 30), LocalTime.of(12, 0))
+      )
+    }
+
+    // todo max, min
   }
 }

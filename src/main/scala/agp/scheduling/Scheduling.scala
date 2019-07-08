@@ -11,3 +11,7 @@ final case class Scheduling private[scheduling](event: Event, startTime: LocalTi
   override def duration: Duration = event.duration
   val endTime: LocalTime = startTime plusNanos event.duration.toNanos
 }
+
+object Scheduling {
+  implicit def orderingByStartTime: Ordering[Scheduling] = Ordering.by(_.startTime)
+}

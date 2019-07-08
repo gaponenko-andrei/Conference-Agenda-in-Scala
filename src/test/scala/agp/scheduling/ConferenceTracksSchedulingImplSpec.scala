@@ -10,7 +10,7 @@ import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
 
   /* shorter alias for tested type */
-  type Scheduling = ConferenceTracksSchedulingImpl
+  type TracksScheduling = ConferenceTracksSchedulingImpl
 
 
   "ConferenceTracksSchedulingImpl" should {
@@ -26,7 +26,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
         val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
         And("scheduling using them")
-        val scheduling = new Scheduling(msComposition, asComposition)
+        val scheduling = new TracksScheduling(msComposition, asComposition)
 
         Then("exception should be thrown when scheduling is applied")
         an[agp.scheduling.Exception] should be thrownBy scheduling(5 talks)
@@ -41,7 +41,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
         val asComposition = (_: Set[Talk]) => throw new RuntimeException("_")
 
         And("scheduling using them")
-        val scheduling = new Scheduling(msComposition, asComposition)
+        val scheduling = new TracksScheduling(msComposition, asComposition)
 
         Then("exception should be thrown when scheduling is applied")
         an[agp.scheduling.Exception] should be thrownBy scheduling(5 talks)
@@ -59,7 +59,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
         val asComposition = newAfternoonSessionsCompositionReturning(j afternoonSessions)
 
         When("scheduling using them is applied to some talks")
-        val tracks = new Scheduling(msComposition, asComposition)(someTalks)
+        val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
 
         Then(s"number of tracks should be ${i min j}")
         tracks.size shouldBe (i min j)
@@ -77,7 +77,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new Scheduling(msComposition, asComposition)(someTalks)
+      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("tracks should have expected talks")
       val morningTalks = morningSessions.flatten
@@ -94,12 +94,56 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new Scheduling(msComposition, asComposition)(someTalks)
+      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("each track should contain scheduling of Lunch & NetworkingEvent")
       tracks.foreach(eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
     }
+
+    "nothing should be scheduled after NetworkingEvent" in {
+
+      Given("morning sessions composition returning 3 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(3 morningSessions)
+
+      And("afternoon sessions composition returning 3 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(3 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("each track should have scheduling of NetworkingEvent as the last one")
+      tracks.foreach(_.max.event shouldBe NetworkingEvent)
+    }
+
+//    "schedule events in expected order" in {
+//
+//      Given("morning sessions composition returning 3 sessions")
+//      val morningSessions = 3 morningSessions
+//      val msComposition = newMorningSessionsCompositionReturning(morningSessions)
+//
+//      And("afternoon sessions composition returning 3 sessions")
+//      val afternoonSessions = 3 afternoonSessions
+//      val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
+//
+//      When("scheduling using them is applied to some talks")
+//      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+//
+//      Then("each track should have scheduled talks of corresponding morning sessions first")
+//      tracks.foreach(track => {
+//
+//        val lunchScheduling = findLunchSchedulingAmong(track)
+//        val (schedulingsBeforeLunch, schedulingsAfterLunch) = track.toList.sorted span (_ != lunchScheduling)
+//
+//        val networkingEventScheduling = findNetworkingEventSchedulingAmong(schedulingsAfterLunch)
+//        val (schedulingsBefore)
+//
+//      })
+//    }
   }
+
+  // todo проверить как происходит планирование событий
+  // todo проверить что утренние события планируются первыми, потом идёт ланч, потом дневные, потом networking event
+
 
   /* utils */
 
@@ -110,6 +154,24 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
 
   def talksOf(tracks: Set[ConferenceTrack]): Set[Talk] =
     tracks.flatten.collect { case Scheduling(event: Talk, _) => event }
+
+  def findLunchSchedulingAmong(items: Iterable[Scheduling]): Scheduling =
+    items find isLunch getOrElse (throw new IllegalStateException(
+      "Track is supposed to have one scheduling of Lunch event."))
+
+  def findNetworkingEventSchedulingAmong(items: Iterable[Scheduling]): Scheduling =
+    items find isNetworkingEvent getOrElse (throw new IllegalStateException(
+      "Track is supposed to have one scheduling of NetworkingEvent."))
+
+  def isLunch(scheduling: Scheduling): Boolean = scheduling match {
+    case Scheduling(Lunch, _) => true
+    case _ => false
+  }
+
+  def isNetworkingEvent(scheduling: Scheduling): Boolean = scheduling match {
+    case Scheduling(NetworkingEvent, _) => true
+    case _ => false
+  }
 
   def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition =
     _ => new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks)
