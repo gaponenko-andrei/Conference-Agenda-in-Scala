@@ -116,11 +116,31 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       tracks.foreach(_.max.event shouldBe NetworkingEvent)
     }
 
-    "schedule talks of morning sessions before lunch & talks of afternoon sessions after lunch" in {
+    "schedule talks of morning sessions before lunch" in {
 
       Given("morning sessions composition returning 2 sessions")
       val morningSessions = 2 morningSessions
       val msComposition = newMorningSessionsCompositionReturning(morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("morning session talks should be scheduled before lunch")
+      val sessions = morningSessions.toVector
+      for (track <- tracks) {
+        track.eventsBeforeLunch should {
+          equal(sessions(0).talks) or equal(sessions(1).talks)
+        }
+      }
+    }
+
+    "schedule talks talks of afternoon sessions after lunch" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
 
       And("afternoon sessions composition returning 2 sessions")
       val afternoonSessions = 2 afternoonSessions
@@ -129,16 +149,11 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       When("scheduling using them is applied to some talks")
       val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
 
-      Then("morning session talks should be scheduled before lunch")
-      And("afternoon session talks should be scheduled after lunch")
-      val msSeq = morningSessions.toVector
-      val asSeq = afternoonSessions.toVector
+      Then("afternoon session talks should be scheduled after lunch")
+      val sessions = afternoonSessions.toVector
       for (track <- tracks) {
-        track.eventsBeforeLunch should {
-          equal(msSeq(0).talks) or equal(msSeq(1).talks)
-        }
         track.eventsAfterLunch - NetworkingEvent should {
-          equal(asSeq(0).talks) or equal(asSeq(1).talks)
+          equal(sessions(0).talks) or equal(sessions(1).talks)
         }
       }
     }
