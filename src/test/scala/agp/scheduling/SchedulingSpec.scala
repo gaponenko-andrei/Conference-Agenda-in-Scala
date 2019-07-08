@@ -35,7 +35,24 @@ class SchedulingSpec extends WordSpec with Matchers {
         Scheduling(Talk("#3", 30), LocalTime.of(12, 0))
       )
     }
+  }
 
-    // todo max, min
+  "Set[Scheduling]" should {
+
+    "produce maximum element based on start time" in {
+      Set(
+        Scheduling(Talk("#1", 30), LocalTime.of(11, 0)),
+        Scheduling(Talk("#2", 30), LocalTime.of(12, 0)),
+        Scheduling(Talk("#3", 30), LocalTime.of(10, 0))
+      ).max shouldBe Scheduling(Talk("#2", 30), LocalTime.of(12, 0))
+    }
+
+    "produce minimum element based on start time" in {
+      Set(
+        Scheduling(Talk("#1", 30), LocalTime.of(11, 0)),
+        Scheduling(Talk("#2", 30), LocalTime.of(12, 0)),
+        Scheduling(Talk("#3", 30), LocalTime.of(10, 0))
+      ).min shouldBe Scheduling(Talk("#3", 30), LocalTime.of(10, 0))
+    }
   }
 }

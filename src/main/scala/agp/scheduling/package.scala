@@ -1,6 +1,8 @@
 package agp
 
-import agp.vo.Talk
+import agp.vo.{Event, Talk}
+
+import scala.language.higherKinds
 
 package object scheduling {
   type ConferenceTracksScheduling = Set[Talk] => Set[ConferenceTrack]

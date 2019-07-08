@@ -6,19 +6,19 @@ import scala.concurrent.duration.Duration
 
 sealed abstract class Session protected(
   override val title: String,
-  private val events: Set[Talk]
+  val talks: Set[Talk]
 ) extends Iterable[Talk] with EventLike {
 
-  final override def iterator: Iterator[Talk] = events.iterator
-  final override val duration: Duration = events.duration
+  final override def iterator: Iterator[Talk] = talks.iterator
+  final override val duration: Duration = talks.duration
 }
 
 // MorningSession
 
 final case class MorningSession private(
   override val title: String,
-  private val events: Set[Talk]
-) extends Session(title, events)
+  override val talks: Set[Talk]
+) extends Session(title, talks)
 
 object MorningSession {
 
@@ -33,8 +33,8 @@ object MorningSession {
 
 final case class AfternoonSession private(
   override val title: String,
-  private val events: Set[Talk]
-) extends Session(title, events)
+  override val talks: Set[Talk]
+) extends Session(title, talks)
 
 object AfternoonSession {
 

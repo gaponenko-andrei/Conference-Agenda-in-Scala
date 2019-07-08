@@ -2,8 +2,9 @@ package agp.scheduling
 
 import java.util.UUID._
 
+import agp.TestUtils._
 import agp.composition._
-import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
+import agp.vo.{AfternoonSession, Lunch, MorningSession, NetworkingEvent, Talk}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
@@ -115,63 +116,54 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
       tracks.foreach(_.max.event shouldBe NetworkingEvent)
     }
 
-//    "schedule events in expected order" in {
-//
-//      Given("morning sessions composition returning 3 sessions")
-//      val morningSessions = 3 morningSessions
-//      val msComposition = newMorningSessionsCompositionReturning(morningSessions)
-//
-//      And("afternoon sessions composition returning 3 sessions")
-//      val afternoonSessions = 3 afternoonSessions
-//      val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
-//
-//      When("scheduling using them is applied to some talks")
-//      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
-//
-//      Then("each track should have scheduled talks of corresponding morning sessions first")
-//      tracks.foreach(track => {
-//
-//        val lunchScheduling = findLunchSchedulingAmong(track)
-//        val (schedulingsBeforeLunch, schedulingsAfterLunch) = track.toList.sorted span (_ != lunchScheduling)
-//
-//        val networkingEventScheduling = findNetworkingEventSchedulingAmong(schedulingsAfterLunch)
-//        val (schedulingsBefore)
-//
-//      })
-//    }
+    "schedule talks of morning sessions first" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val morningSessions = 2 morningSessions
+      val msComposition = newMorningSessionsCompositionReturning(morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("morning session talks should be scheduled before lunch")
+      val sessions = morningSessions.toVector
+      for (track <- tracks) {
+        track.eventsBeforeLunch should {
+          equal(sessions(0).talks) or equal(sessions(1).talks)
+        }
+      }
+    }
+
+    "schedule talks of afternoon sessions after lunch" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val afternoonSessions = 2 afternoonSessions
+      val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("afternoon session talks should be scheduled after lunch")
+      val sessions = afternoonSessions.toVector
+      for (track <- tracks) {
+        track.eventsAfterLunch - NetworkingEvent should {
+          equal(sessions(0).talks) or equal(sessions(1).talks)
+        }
+      }
+    }
   }
 
   // todo проверить как происходит планирование событий
-  // todo проверить что утренние события планируются первыми, потом идёт ланч, потом дневные, потом networking event
-
 
   /* utils */
 
   def someTalks: Set[Talk] = 2 talks
-
-  def eventsOf(track: ConferenceTrack): Set[Event] =
-    track.collect { case Scheduling(event: Event, _) => event }
-
-  def talksOf(tracks: Set[ConferenceTrack]): Set[Talk] =
-    tracks.flatten.collect { case Scheduling(event: Talk, _) => event }
-
-  def findLunchSchedulingAmong(items: Iterable[Scheduling]): Scheduling =
-    items find isLunch getOrElse (throw new IllegalStateException(
-      "Track is supposed to have one scheduling of Lunch event."))
-
-  def findNetworkingEventSchedulingAmong(items: Iterable[Scheduling]): Scheduling =
-    items find isNetworkingEvent getOrElse (throw new IllegalStateException(
-      "Track is supposed to have one scheduling of NetworkingEvent."))
-
-  def isLunch(scheduling: Scheduling): Boolean = scheduling match {
-    case Scheduling(Lunch, _) => true
-    case _ => false
-  }
-
-  def isNetworkingEvent(scheduling: Scheduling): Boolean = scheduling match {
-    case Scheduling(NetworkingEvent, _) => true
-    case _ => false
-  }
 
   def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition =
     _ => new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks)
