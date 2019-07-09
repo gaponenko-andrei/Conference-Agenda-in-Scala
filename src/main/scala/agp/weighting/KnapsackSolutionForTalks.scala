@@ -4,18 +4,18 @@ import agp.vo.{Talk, TalksCombinations}
 
 import scala.concurrent.duration.Duration
 
-class KnapsackSolutionForTalks(talks: Set[Talk]) {
+final class KnapsackSolutionForTalks {
 
   /* private aliases for package-private types used in general knapsack solution */
   private type WCombination = List[WeighableTalk]
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Duration): TalksCombinations = {
+  def apply(goal: Duration)(talks: Set[Talk]): TalksCombinations = simplifySolution {
     val solution = new GeneralKnapsackSolution[Duration, WeighableTalk]
     val adaptedGoal = adaptForGeneralSolution(goal)
-    val adaptedWeighables = adaptForGeneralSolution(talks)
-    simplifyCombinations(solution(adaptedGoal)(adaptedWeighables))
+    val weighables = adaptForGeneralSolution(talks)
+    solution(adaptedGoal)(weighables)
   }
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
@@ -29,7 +29,7 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
 
   /* Methods to simplify (unwrap) result of general solution into client-known types */
 
-  private def simplifyCombinations(combinations: WCombinations)
+  private def simplifySolution(combinations: WCombinations)
   : TalksCombinations = combinations.map(simplifyCombination).toSet
 
   private def simplifyCombination(combination: WCombination)
@@ -48,5 +48,4 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
     def isPositive: Boolean = weight.toMillis > 0
     def -(otherWeight: Duration): Weighable[Duration] = WeighableDuration(weight - otherWeight)
   }
-
 }

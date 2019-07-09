@@ -20,7 +20,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         val nonPositiveGoals = List(0 minutes, -1 minute)
 
         Then("exception should be thrown")
-        nonPositiveGoals.foreach(goal => an[IllegalArgumentException] should be thrownBy {
+        nonPositiveGoals foreach (goal => an[IllegalArgumentException] should be thrownBy {
 
           When(s"solution is applied to goal $goal")
           applySolution(talks, goal)
@@ -148,5 +148,6 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
 
   /* utils */
 
-  def applySolution(talks: Set[Talk], goal: Duration) = new KnapsackSolutionForTalks(talks)(goal)
+  def applySolution(talks: Set[Talk], goal: Duration) =
+    new KnapsackSolutionForTalks()(goal)(talks)
 }

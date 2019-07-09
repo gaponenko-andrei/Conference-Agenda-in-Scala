@@ -18,7 +18,7 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
         )
 
         Then("exception should be thrown")
-        ints.foreach(combination => an[IllegalArgumentException] should be thrownBy {
+        ints foreach (combination => an[IllegalArgumentException] should be thrownBy {
 
           When(s"solution is applied to $combination")
           applySolution(combination, 10)

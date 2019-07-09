@@ -4,3 +4,5 @@
 + ConferenceTracksScheduling
 + Tests refactoring
 - Refactoring of KnapsackSolution(s)
+    + KnapsackSolutionForInts refactoring
+    + KnapsackSolutionForTalks refactoring
