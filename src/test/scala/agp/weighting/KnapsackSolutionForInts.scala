@@ -1,39 +1,27 @@
 package agp.weighting
 
+import agp.weighting.KnapsackSolutionForInts.{Combination, Combinations}
 
-class KnapsackSolutionForInts(ints: List[Int]) {
 
-  /* public aliases */
-  type Combination = List[Int]
-  type Combinations = List[Combination]
+final class KnapsackSolutionForInts {
 
   /* private aliases */
   private type WCombination = List[WeighableInt]
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Int): Combinations = {
+  def apply(goal: Int)(ints: List[Int]): Combinations = simplifySolution {
     val solution = new GeneralKnapsackSolution[OrderedInt, WeighableInt]
-    val adaptedGoal = adaptForGeneralSolution(goal)
-    val adaptedWeighables = adaptForGeneralSolution(ints)
-    simplifyCombinations(solution(adaptedGoal)(adaptedWeighables))
+    solution(goal = WeighableInt(goal))(weighables = ints map WeighableInt)
   }
-
-  /* Methods to adapt (wrap) arguments for contract of general solution */
-
-  private def adaptForGeneralSolution(ints: Combination): WCombination = ints.map(WeighableInt)
-
-  private def adaptForGeneralSolution(i: Int): WeighableInt = WeighableInt(i)
-
 
   /* Methods to simplify (unwrap) result of general solution into client-known types */
 
-  private def simplifyCombinations(combinations: WCombinations)
+  private def simplifySolution(combinations: WCombinations)
   : Combinations = combinations map simplifyCombination
 
   private def simplifyCombination(combination: WCombination)
   : Combination = combination map (_.weight.value)
-
 
   /* Auxiliary classes */
 
@@ -47,4 +35,13 @@ class KnapsackSolutionForInts(ints: List[Int]) {
   private final case class OrderedInt(value: Int) extends Ordered[OrderedInt] {
     def compare(other: OrderedInt): Int = this.value - other.value
   }
+}
+
+object KnapsackSolutionForInts {
+
+  /* public aliases */
+  type Combination = List[Int]
+  type Combinations = List[Combination]
+
+  def apply(goal: Int, ints: List[Int]): Combinations = new KnapsackSolutionForInts()(goal)(ints)
 }

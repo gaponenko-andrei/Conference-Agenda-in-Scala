@@ -42,5 +42,4 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
 
     process(allWeighables)
   }
-
 }
