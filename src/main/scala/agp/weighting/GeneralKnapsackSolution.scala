@@ -21,13 +21,11 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
   private def findCombinationsFor(goal: Goal, allWeighables: Weighables): Combinations = {
 
     @tailrec
-    def process(unprocessed: Weighables, combinations: Combinations = Nil): Combinations =
-      if (unprocessed.isEmpty) combinations else {
-        val newCombinations = combinationsStartingWithHeadFor(unprocessed)
-        process(unprocessed.tail, combinations ::: newCombinations)
-      }
+    def process(unprocessed: Weighables, res: Combinations = Nil): Combinations =
+      if (unprocessed.isEmpty) res
+      else process(unprocessed.tail, res ::: combinationsStartingWithHeadOf(unprocessed))
 
-    def combinationsStartingWithHeadFor(weighables: Weighables): Combinations =
+    def combinationsStartingWithHeadOf(weighables: Weighables): Combinations =
       if (weighables.isEmpty || weighables.head > goal) {
         List.empty
       } else if (weighables.head < goal) {
