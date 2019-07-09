@@ -28,8 +28,7 @@ class ConferenceTracksSchedulingImpl(
 
   private def scheduleTracksBasedOn(pairedSessions: PairedSessions): Tracks =
     pairedSessions.zipWithIndex map {
-      case (pair, i) =>
-        newTrack(s"Track #${i + 1}", pair)
+      case (pair, i) => newTrack(s"Track #${i + 1}", pair)
     }
 
   private def newTrack(title: String, sessions: SessionsPair): ConferenceTrack =

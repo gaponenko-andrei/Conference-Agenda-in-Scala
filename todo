@@ -3,6 +3,8 @@
 + Scheduling tests
 + ConferenceTracksScheduling
 + Tests refactoring
-- Refactoring of KnapsackSolution(s)
++ Refactoring of KnapsackSolution(s)
     + KnapsackSolutionForInts refactoring
     + KnapsackSolutionForTalks refactoring
+
+- ConferenceAgendaScheduler
