@@ -7,16 +7,17 @@ class KnapsackSolutionForInts(ints: List[Int]) {
   type Combination = List[Int]
   type Combinations = List[Combination]
 
-  /* private aliases for package-private types used in general knapsack solution */
+  /* private aliases */
   private type WCombination = List[WeighableInt]
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Int): Combinations = simplifyCombinations(
-    new GeneralKnapsackSolution[WeighableInt, OrderedInt]
-    (adaptForGeneralSolution(ints)) // weighables
-    (adaptForGeneralSolution(goal)) // desired goal
-  )
+  def apply(goal: Int): Combinations = {
+    val solution = new GeneralKnapsackSolution[OrderedInt, WeighableInt]
+    val adaptedGoal = adaptForGeneralSolution(goal)
+    val adaptedWeighables = adaptForGeneralSolution(ints)
+    simplifyCombinations(solution(adaptedGoal)(adaptedWeighables))
+  }
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
 

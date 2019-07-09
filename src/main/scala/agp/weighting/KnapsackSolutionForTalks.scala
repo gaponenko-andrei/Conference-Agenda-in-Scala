@@ -11,11 +11,12 @@ class KnapsackSolutionForTalks(talks: Set[Talk]) {
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Duration): TalksCombinations = simplifyCombinations(
-    new GeneralKnapsackSolution[WeighableTalk, Duration]
-    (adaptForGeneralSolution(talks)) // weighables
-    (adaptForGeneralSolution(goal))  // desired goal
-  )
+  def apply(goal: Duration): TalksCombinations = {
+    val solution = new GeneralKnapsackSolution[Duration, WeighableTalk]
+    val adaptedGoal = adaptForGeneralSolution(goal)
+    val adaptedWeighables = adaptForGeneralSolution(talks)
+    simplifyCombinations(solution(adaptedGoal)(adaptedWeighables))
+  }
 
   /* Methods to adapt (wrap) arguments for contract of general solution */
 
