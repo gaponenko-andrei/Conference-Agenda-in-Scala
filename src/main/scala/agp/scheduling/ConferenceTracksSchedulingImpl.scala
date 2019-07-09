@@ -16,22 +16,23 @@ class ConferenceTracksSchedulingImpl(
   private type Tracks = Set[ConferenceTrack]
   private type MorningSessions = Set[MorningSession]
   private type AfternoonSessions = Set[AfternoonSession]
+  private type SessionsPair = (MorningSession, AfternoonSession)
+  private type PairedSessions = Set[SessionsPair]
 
 
   override def apply(talks: Talks): Tracks = {
-    val (morningSessions, afternoonSessions) = composeSessionsFrom(talks)
+    val (morningSessions, unusedTalks) = composeMorningSessionsFrom(talks).asPair
+    val afternoonSessions = composeAfternoonSessionsFrom(unusedTalks).sessions
     scheduleTracksBasedOn(pairedSessions = morningSessions zip afternoonSessions)
   }
 
-  private def composeSessionsFrom(talks: Talks): (MorningSessions, AfternoonSessions) = {
-    val (morningSessions, unusedTalks) = composeMorningSessionsFrom(talks).asPair
-    (morningSessions, composeAfternoonSessionsFrom(unusedTalks))
-  }
+  private def scheduleTracksBasedOn(pairedSessions: PairedSessions): Tracks =
+    pairedSessions.zipWithIndex map {
+      case (pair, i) =>
+        newTrack(s"Track #${i + 1}", pair)
+    }
 
-  private def scheduleTracksBasedOn(pairedSessions: Set[(MorningSession, AfternoonSession)]): Tracks =
-    pairedSessions.zipWithIndex map { case (pair, i) => newTrack(s"Track #${i + 1}", pair) }
-
-  private def newTrack(title: String, sessions: (MorningSession, AfternoonSession)): ConferenceTrack =
+  private def newTrack(title: String, sessions: SessionsPair): ConferenceTrack =
     ConferenceTrack.newBuilder
       .schedule(sessions._1)
       .schedule(Lunch)
@@ -48,9 +49,9 @@ class ConferenceTracksSchedulingImpl(
       case NonFatal(ex) => throw newExceptionCausedBy(ex)
     }
 
-  private def composeAfternoonSessionsFrom: Talks => AfternoonSessions = talks =>
+  private def composeAfternoonSessionsFrom: AfternoonSessionsComposition = talks =>
     try {
-      afternoonSessionsComposition(talks).sessions
+      afternoonSessionsComposition(talks)
     } catch {
       case NonFatal(ex) => throw newExceptionCausedBy(ex)
     }

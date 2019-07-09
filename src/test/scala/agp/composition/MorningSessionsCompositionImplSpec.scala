@@ -15,10 +15,10 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   private type SessionsComposition = MorningSessionsCompositionImpl
 
   /* morning session composition always throwing exception */
-  lazy val newThrowingSessionComposition: MorningSessionComposition = _ => throw composition.Exception("_")
+  lazy val throwingSessionComposition: MorningSessionComposition = _ => throw composition.Exception("_")
 
   /* morning session composition always returning some result */
-  lazy val newSuccessfulSessionComposition: MorningSessionComposition = _ => someSessionCompositionResult
+  lazy val successfulSessionComposition: MorningSessionComposition = _ => someSessionCompositionResult
 
 
   "MorningSessionsCompositionImpl" should {
@@ -28,7 +28,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
       "given number of talks < required number of sessions" in {
 
         Given("morning session composition always returning result")
-        val sessionComposition = newSuccessfulSessionComposition
+        val sessionComposition = successfulSessionComposition
 
         And("required number of sessions = 3")
         val requiredSessionsNumber = 3
@@ -49,7 +49,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
       "given morning session composition throws exception" in {
 
         Given("morning session composition throwing exception")
-        List(newThrowingSessionComposition, // always throws CompositionException
+        List(throwingSessionComposition,    // always throws CompositionException
              newUniqueSessionComposition(1) // returns result once, then throws
         ).foreach(sessionComposition => {
 
@@ -66,7 +66,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
     "not throw when given number of talks >= required number of sessions" in {
 
       Given("morning session composition always returning result")
-      val sessionComposition = newSuccessfulSessionComposition
+      val sessionComposition = successfulSessionComposition
 
       And("required number of sessions = 2")
       val requiredSessionsNumber = 2
