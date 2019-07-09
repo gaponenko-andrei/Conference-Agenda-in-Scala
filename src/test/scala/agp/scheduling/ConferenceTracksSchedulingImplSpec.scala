@@ -1,7 +1,5 @@
 package agp.scheduling
 
-import java.util.UUID._
-
 import agp.TestUtils._
 import agp.composition._
 import agp.vo.{AfternoonSession, Lunch, MorningSession, NetworkingEvent, Talk}
@@ -159,31 +157,11 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with Giv
     }
   }
 
-  // todo проверить как происходит планирование событий
-
   /* utils */
-
-  def someTalks: Set[Talk] = 2 talks
 
   def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition =
     _ => new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks)
 
   def newAfternoonSessionsCompositionReturning(sessions: Set[AfternoonSession]): AfternoonSessionsComposition =
     _ => new AfternoonSessionsCompositionResult(sessions, unusedTalks = Set.empty)
-
-  // todo dry
-  implicit class DummiesFactory(requiredCount: Int) {
-
-    def talks: Set[Talk] = this fillSet Talk(uniqueTitle, 10)
-
-    def morningSessions: Set[MorningSession] =
-      this fillSet MorningSession(uniqueTitle, 2 talks)
-
-    def afternoonSessions: Set[AfternoonSession] =
-      this fillSet AfternoonSession(uniqueTitle, 2 talks)
-
-    private def uniqueTitle: String = randomUUID.toString
-
-    private def fillSet[T](value: => T): Set[T] = Iterable.fill(requiredCount)(value).toSet
-  }
 }

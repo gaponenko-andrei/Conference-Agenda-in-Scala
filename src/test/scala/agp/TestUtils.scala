@@ -1,9 +1,13 @@
 package agp
 
+import java.util.UUID.randomUUID
+
 import agp.scheduling.{ConferenceTrack, Scheduling}
-import agp.vo.{Event, Lunch, NetworkingEvent, Talk}
+import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
 
 object TestUtils {
+
+  def someTalks: Set[Talk] = 2 talks
 
   def setup[T](obj: T)(setup: T => Unit): T = {
     setup(obj)
@@ -17,6 +21,8 @@ object TestUtils {
 
   def eventsOf(schedulings: List[Scheduling]): List[Event] = schedulings map (_.event)
 
+
+  // ExtendedConferenceTrack
 
   implicit final class ExtendedConferenceTrack(track: ConferenceTrack) {
 
@@ -37,5 +43,22 @@ object TestUtils {
 
     lazy val networkingEventScheduling: Scheduling = track find (_.event == NetworkingEvent) getOrElse (
       throw new IllegalStateException("Track is supposed to have one scheduling of NetworkingEvent."))
+  }
+
+  // DummiesFactory
+
+  implicit class DummiesFactory(requiredCount: Int) {
+
+    def talks: Set[Talk] = this fillSet Talk(uniqueTitle, 10)
+
+    def morningSessions: Set[MorningSession] =
+      this fillSet MorningSession(uniqueTitle, 2 talks)
+
+    def afternoonSessions: Set[AfternoonSession] =
+      this fillSet AfternoonSession(uniqueTitle, 2 talks)
+
+    private def uniqueTitle: String = randomUUID.toString
+
+    private def fillSet[T](value: => T): Set[T] = Iterable.fill(requiredCount)(value).toSet
   }
 }

@@ -2,4 +2,5 @@
 + NetworkingEvent
 + Scheduling tests
 + ConferenceTracksScheduling
--
++ Tests refactoring
+- Refactoring of KnapsackSolution

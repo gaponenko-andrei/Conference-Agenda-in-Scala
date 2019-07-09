@@ -1,12 +1,12 @@
 package agp.composition
 
-import agp.vo.{AfternoonSession, Talk}
+import agp.TestUtils.DummiesFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 class AfternoonSessionsCompositionImplSpec extends WordSpec with Matchers with GivenWhenThen {
 
   /* shorter alias for tested type */
-  private type SessionsComposition = AfternoonSessionsCompositionImpl
+  type SessionsComposition = AfternoonSessionsCompositionImpl
 
 
   "AfternoonSessionsCompositionImpl" should {
@@ -80,12 +80,5 @@ class AfternoonSessionsCompositionImplSpec extends WordSpec with Matchers with G
       And("unused talks should be empty")
       result.unusedTalks shouldBe empty
     }
-  }
-
-  /* to create test entities */
-
-  // todo dry
-  implicit class DummiesFactory(requiredCount: Int) {
-    def talks: Set[Talk] = (1 to requiredCount).map(i => Talk(s"Title ${i + 1}", 5 + i)).toSet
   }
 }

@@ -1,7 +1,7 @@
 package agp.composition
 
 import agp.TestUtils._
-import agp.composition
+import agp.{TestUtils, composition}
 import agp.vo.{MorningSession, Talk}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
@@ -12,13 +12,16 @@ import scala.language.postfixOps
 class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
 
   /* shorter alias for tested type */
-  private type SessionsComposition = MorningSessionsCompositionImpl
+  type SessionsComposition = MorningSessionsCompositionImpl
+
+  /* test instance of MorningSession indicating we don't care about it's talks */
+  val someSession: MorningSession = session("Morning Session")
 
   /* morning session composition always throwing exception */
-  lazy val throwingSessionComposition: MorningSessionComposition = _ => throw composition.Exception("_")
+  val throwingSessionComposition: MorningSessionComposition = _ => throw composition.Exception("_")
 
   /* morning session composition always returning some result */
-  lazy val successfulSessionComposition: MorningSessionComposition = _ => someSessionCompositionResult
+  val successfulSessionComposition: MorningSessionComposition = _ => someSessionCompositionResult
 
 
   "MorningSessionsCompositionImpl" should {
@@ -105,9 +108,10 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
     "result in expected sessions" in {
 
       Given("morning session composition returning unique results")
+      val (session1, session2) = (session("#5"), session("#6"))
       val sessionComposition = newSessionCompositionReturning(
-        sessionCompositionResult(session("#5"), someTalks),
-        sessionCompositionResult(session("#6"), someTalks))
+        sessionCompositionResult(session1, someTalks),
+        sessionCompositionResult(session2, someTalks))
 
       And("morning sessions composition using them")
       val composition = new SessionsComposition(
@@ -117,7 +121,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
       val result = composition(5 talks)
 
       Then("result should have expected morning sessions")
-      result.sessions shouldBe Set(session("#5"), session("#6"))
+      result.sessions shouldBe Set(session1, session2)
     }
 
     "result in expected unused talks" in {
@@ -142,19 +146,9 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
     }
   }
 
-  /* to create MorningSessionComposition mocks */
+  /* utils */
 
-  def newUniqueSessionComposition(times: Int): MorningSessionComposition = setup(mock[MorningSessionComposition]) {
-    it => (1 to times).foreach(i => {
-        it.apply _ expects * returning sessionCompositionResult(session("#" + i), someTalks)
-      })
-  }
-
-  def newSessionCompositionReturning(results: MorningSessionCompositionResult*): MorningSessionComposition =
-    setup(mock[MorningSessionComposition]) { it => results foreach (it.apply _ expects * returning _) }
-
-
-  /* to create test MorningSessionCompositionResult */
+  def session(title: String) = MorningSession(title, someTalks)
 
   def someSessionCompositionResult: MorningSessionCompositionResult =
     sessionCompositionResult(someSession, someTalks)
@@ -162,20 +156,12 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   def sessionCompositionResult(session: MorningSession, unused: Set[Talk]) =
     new MorningSessionCompositionResult(session, unused)
 
+  def newSessionCompositionReturning(results: MorningSessionCompositionResult*): MorningSessionComposition =
+    setup(mock[MorningSessionComposition]) { it => results foreach (it.apply _ expects * returning _) }
 
-  /* to create test MorningSession */
-
-  def someSession: MorningSession = session("Morning Session")
-  def session(title: String) = MorningSession(title, someTalks)
-
-
-  /* to create test Talk */
-
-  def someTalks: Set[Talk] = 2 talks
-
-  // todo dry
-  implicit class DummiesFactory(requiredCount: Int) {
-    def talks: Set[Talk] = (1 to requiredCount).map(i => Talk(s"Title ${i + 1}", 5 + i)).toSet
+  def newUniqueSessionComposition(times: Int): MorningSessionComposition = setup(mock[MorningSessionComposition]) {
+    it => (1 to times).foreach(i => {
+      it.apply _ expects * returning sessionCompositionResult(session("#" + i), someTalks)
+    })
   }
-
 }
