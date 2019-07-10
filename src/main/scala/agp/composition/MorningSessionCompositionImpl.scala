@@ -3,7 +3,7 @@ package agp.composition
 import agp.composition
 import agp.vo.{MorningSession, Talk, TalksCombinations}
 
-private[composition] class MorningSessionCompositionImpl(
+final class MorningSessionCompositionImpl(
   val knapsackSolution: Set[Talk] => TalksCombinations
 ) extends (Set[Talk] => MorningSessionCompositionResult) {
 

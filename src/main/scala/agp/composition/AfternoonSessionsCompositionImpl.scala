@@ -3,7 +3,7 @@ package agp.composition
 import agp.Utils.RichSeq
 import agp.vo.{AfternoonSession, Talk}
 
-private[composition] class AfternoonSessionsCompositionImpl(val requiredSessionsNumber: Int)
+final class AfternoonSessionsCompositionImpl(val requiredSessionsNumber: Int)
   extends (Set[Talk] => AfternoonSessionsCompositionResult) {
 
   /* shorter alias for result type */

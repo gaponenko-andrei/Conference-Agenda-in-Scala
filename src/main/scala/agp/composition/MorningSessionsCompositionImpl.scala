@@ -8,7 +8,7 @@ import scala.collection.immutable.Queue
 import scala.util.control.NonFatal
 
 
-private[composition] class MorningSessionsCompositionImpl(
+final class MorningSessionsCompositionImpl(
   val morningSessionComposition: MorningSessionComposition,
   val requiredSessionsNumber: Int
 ) extends (Set[Talk] => MorningSessionsCompositionResult) {

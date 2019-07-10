@@ -7,4 +7,5 @@
     + KnapsackSolutionForInts refactoring
     + KnapsackSolutionForTalks refactoring
 
-- ConferenceAgendaScheduler
++ ConferenceAgendaScheduling
+- FileParser
