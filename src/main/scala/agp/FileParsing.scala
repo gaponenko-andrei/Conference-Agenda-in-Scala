@@ -9,7 +9,6 @@ object FileParsing extends (BufferedSource => Set[Talk]) {
   override def apply(source: BufferedSource): Set[Talk] =
     source.getLines.drop(1).map(parseTalk).toSet
 
-  // todo talk extractor
   private def parseTalk(talkString: String): Talk = {
     val chunks = talkString.split(" ").toList
     val durationString = chunks.last ensuring (isDuration(_))
@@ -18,5 +17,6 @@ object FileParsing extends (BufferedSource => Set[Talk]) {
     else Talk(title, minutes = durationString.replace("min", "").toInt)
   }
 
-  private def isDuration(s: String): Boolean = s.contains("min") || s.contains("lightning")
+  private def isDuration(s: String): Boolean =
+    s.contains("min") || s.contains("lightning")
 }

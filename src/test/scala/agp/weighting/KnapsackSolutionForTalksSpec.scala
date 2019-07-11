@@ -1,6 +1,6 @@
 package agp.weighting
 
-import agp.vo.Talk
+import agp.vo.{Talk, TalksCombinations}
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 import scala.concurrent.duration._
@@ -148,6 +148,6 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
 
   /* utils */
 
-  def applySolution(talks: Set[Talk], goal: Duration) =
-    new KnapsackSolutionForTalks()(goal)(talks)
+  def applySolution(talks: Set[Talk], goal: Duration): TalksCombinations =
+    KnapsackSolutionForTalks(goal)(talks)
 }

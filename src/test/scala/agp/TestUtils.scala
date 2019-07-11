@@ -5,8 +5,6 @@ import java.util.UUID.randomUUID
 import agp.scheduling.{ConferenceTrack, Scheduling}
 import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
 
-import scala.collection.mutable.ListBuffer
-
 object TestUtils {
 
   def uniqueTitle: String = randomUUID.toString
@@ -24,14 +22,6 @@ object TestUtils {
   def eventsOf(schedulings: Set[Scheduling]): Set[Event] = schedulings map (_.event)
 
   def eventsOf(schedulings: List[Scheduling]): List[Event] = schedulings map (_.event)
-
-  def accumulateWhile[T](producer: => T)(condition: Iterable[T] => Boolean): Iterable[T] = {
-    val items = new ListBuffer[T]
-    while(condition(items)) {
-      items.append(producer)
-    }
-    items
-  }
 
   // ExtendedConferenceTrack
 

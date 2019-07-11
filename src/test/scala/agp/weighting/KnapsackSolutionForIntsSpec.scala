@@ -1,5 +1,6 @@
 package agp.weighting
 
+import agp.weighting.KnapsackSolutionForInts.Combinations
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
 class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Matchers {
@@ -137,8 +138,8 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
 
   /* utils */
 
-  def applySolution(ints: List[Int], goal: Int) =
-    KnapsackSolutionForInts(goal, ints)
+  def applySolution(ints: List[Int], goal: Int): Combinations =
+    KnapsackSolutionForInts(goal)(ints)
 
   private def sorted(combinations: List[List[Int]]): List[List[Int]] =
     combinations.map(_.sortWith(_ > _))

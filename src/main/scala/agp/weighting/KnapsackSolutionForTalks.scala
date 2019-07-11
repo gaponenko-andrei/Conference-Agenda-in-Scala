@@ -4,7 +4,7 @@ import agp.vo.{Talk, TalksCombinations}
 
 import scala.concurrent.duration.Duration
 
-final class KnapsackSolutionForTalks {
+object KnapsackSolutionForTalks {
 
   /* private aliases for package-private types used in general knapsack solution */
   private type WCombination = List[WeighableTalk]

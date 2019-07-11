@@ -21,7 +21,7 @@ final class MorningSessionsCompositionImpl(
     validateNumberOf(talks)
 
     @tailrec
-    def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession]): Result =
+    def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession] = Queue()): Result =
       if (sessions.size == requiredSessionsNumber) {
         new Result(sessions.toSet, unusedTalks)
       } else {
@@ -29,7 +29,7 @@ final class MorningSessionsCompositionImpl(
         compose(result.unusedTalks, sessions :+ result.session)
       }
 
-    compose(talks, sessions = Queue())
+    compose(talks)
   }
 
   private def validateNumberOf(talks: Set[Talk]): Unit = {

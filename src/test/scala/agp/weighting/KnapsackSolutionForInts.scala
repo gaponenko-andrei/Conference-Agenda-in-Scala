@@ -1,9 +1,10 @@
 package agp.weighting
 
-import agp.weighting.KnapsackSolutionForInts.{Combination, Combinations}
+object KnapsackSolutionForInts {
 
-
-final class KnapsackSolutionForInts {
+  /* public aliases */
+  type Combination = List[Int]
+  type Combinations = List[Combination]
 
   /* private aliases */
   private type WCombination = List[WeighableInt]
@@ -35,13 +36,4 @@ final class KnapsackSolutionForInts {
   private final case class OrderedInt(value: Int) extends Ordered[OrderedInt] {
     def compare(other: OrderedInt): Int = this.value - other.value
   }
-}
-
-object KnapsackSolutionForInts {
-
-  /* public aliases */
-  type Combination = List[Int]
-  type Combinations = List[Combination]
-
-  def apply(goal: Int, ints: List[Int]): Combinations = new KnapsackSolutionForInts()(goal)(ints)
 }
