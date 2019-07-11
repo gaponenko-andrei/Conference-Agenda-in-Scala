@@ -23,7 +23,5 @@ class UtilsSpec extends WordSpec with Matchers with GivenWhenThen {
     "seq.length > required partitions number" in {
       1 to 10 equallyDividedInto 3 shouldBe List((1 to 4), (5 to 7), (8 to 10))
     }
-
   }
-
 }
