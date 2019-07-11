@@ -5,11 +5,11 @@ import org.scalatest.FunSuite
 
 import scala.io.Source
 
-class FileParsingSpec extends FunSuite {
+class TalksParsingSpec extends FunSuite {
 
   test("parsing SampleInput.txt") {
     val source = Source.fromResource("SampleInput.txt")
-    assert(FileParsing(source) === Set(
+    assert(TalksParsing(source) === Set(
       Talk("Writing Fast Tests Using Selenium", 60),
       Talk("Overdoing it in Java", 45),
       Talk("AngularJS for the Masses", 30),

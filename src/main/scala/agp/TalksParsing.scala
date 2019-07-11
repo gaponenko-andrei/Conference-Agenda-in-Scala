@@ -4,7 +4,7 @@ import agp.vo.Talk
 
 import scala.io.BufferedSource
 
-object FileParsing extends (BufferedSource => Set[Talk]) {
+object TalksParsing extends (BufferedSource => Set[Talk]) {
 
   override def apply(source: BufferedSource): Set[Talk] =
     source.getLines.map(parseTalk).toSet

@@ -23,15 +23,17 @@ object EntryPoint extends App {
 
   // Schedule conference tracks
 
-  val talks: Set[Talk] = FileParsing(source)
-  val tracks: Set[ConferenceTrack] = ConferenceAgendaScheduling(talks)
+  val tracks: List[ConferenceTrack] = {
+    val inputTalks: Set[Talk] = TalksParsing(source)
+    ConferenceAgendaScheduling(inputTalks)
+  }.toList.sortWith(_.title < _.title)
 
   // Output results
 
-  tracks.toList.sortWith(_.title < _.title).foreach { it =>
+  for (track <- tracks) {
     println()
-    println(it.title)
-    it.toList.sorted.foreach(printScheduling)
+    println(track.title)
+    track.toList.sorted.foreach(printScheduling)
   }
 
   def printScheduling(scheduling: Scheduling): Unit = {
