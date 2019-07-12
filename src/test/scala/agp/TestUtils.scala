@@ -4,8 +4,10 @@ import java.util.UUID.randomUUID
 
 import agp.scheduling.{ConferenceTrack, Scheduling}
 import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
+import org.scalactic.{Bad, Or}
+import org.scalatest.{Assertion, Inside, Matchers}
 
-object TestUtils {
+trait TestUtils extends Inside with Matchers {
 
   def uniqueTitle: String = randomUUID.toString
 
@@ -22,6 +24,9 @@ object TestUtils {
   def eventsOf(schedulings: Set[Scheduling]): Set[Event] = schedulings map (_.event)
 
   def eventsOf(schedulings: List[Scheduling]): List[Event] = schedulings map (_.event)
+
+  def assertBrokenRequirement(obj: Any Or IllegalArgumentException, msg: String): Assertion =
+    inside(obj) { case Bad(ex: IllegalArgumentException) => ex should have message msg }
 
   // ExtendedConferenceTrack
 

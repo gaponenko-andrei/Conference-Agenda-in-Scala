@@ -1,9 +1,9 @@
 package agp.composition
 
-import agp.TestUtils.DummiesFactory
-import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import agp.TestUtils
+import org.scalatest.{GivenWhenThen, WordSpec}
 
-class AfternoonSessionsCompositionImplSpec extends WordSpec with Matchers with GivenWhenThen {
+class AfternoonSessionsCompositionImplSpec extends WordSpec with TestUtils with GivenWhenThen {
 
   /* shorter alias for tested type */
   type SessionsComposition = AfternoonSessionsCompositionImpl

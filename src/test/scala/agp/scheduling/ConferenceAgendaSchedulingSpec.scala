@@ -2,11 +2,11 @@ package agp.scheduling
 
 import java.time.LocalTime
 
-import agp.TestUtils._
+import agp.TestUtils
 import agp.vo.{NetworkingEvent, Talk}
-import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import org.scalatest.{GivenWhenThen, WordSpec}
 
-class ConferenceAgendaSchedulingSpec extends WordSpec with Matchers with GivenWhenThen {
+class ConferenceAgendaSchedulingSpec extends WordSpec with TestUtils with GivenWhenThen {
 
   "ConferenceAgendaScheduling" should {
 

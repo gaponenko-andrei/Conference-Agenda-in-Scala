@@ -1,15 +1,15 @@
 package agp.composition
 
-import agp.TestUtils._
-import agp.{TestUtils, composition}
 import agp.vo.{MorningSession, Talk}
+import agp.{TestUtils, composition}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import org.scalatest.{GivenWhenThen, WordSpec}
 
 import scala.language.postfixOps
 
 
-class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
+class MorningSessionsCompositionImplSpec extends WordSpec
+  with GivenWhenThen with MockFactory with TestUtils {
 
   /* shorter alias for tested type */
   type SessionsComposition = MorningSessionsCompositionImpl
@@ -156,12 +156,15 @@ class MorningSessionsCompositionImplSpec extends WordSpec with Matchers with Giv
   def sessionCompositionResult(session: MorningSession, unused: Set[Talk]) =
     new MorningSessionCompositionResult(session, unused)
 
-  def newSessionCompositionReturning(results: MorningSessionCompositionResult*): MorningSessionComposition =
-    setup(mock[MorningSessionComposition]) { it => results foreach (it.apply _ expects * returning _) }
+  def newSessionCompositionReturning(results: MorningSessionCompositionResult*)
+  : MorningSessionComposition = setup(mock[MorningSessionComposition]) {
+      it => results foreach (it.apply _ expects * returning _)
+    }
 
-  def newUniqueSessionComposition(times: Int): MorningSessionComposition = setup(mock[MorningSessionComposition]) {
-    it => (1 to times).foreach(i => {
-      it.apply _ expects * returning sessionCompositionResult(session("#" + i), someTalks)
+  def newUniqueSessionComposition(times: Int): MorningSessionComposition =
+    setup(mock[MorningSessionComposition]) {
+      it => (1 to times).foreach(i => {
+        it.apply _ expects * returning sessionCompositionResult(session("#" + i), someTalks)
     })
   }
 }

@@ -1,45 +1,53 @@
 package agp.weighting
 
+import agp.TestUtils
 import agp.weighting.KnapsackSolutionForInts.Combinations
-import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import org.scalactic.{Good, Or}
+import org.scalatest._
 
-class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Matchers {
+class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with TestUtils {
 
   "Solution" should {
 
-    "throw" when {
-
-      "invalid ints are provided" in {
-
-        Given("invalid combinations of ints")
-        val ints = List(
-          List(),
-          List(0, 1), // int <= 0
-          List(-1, 1) // int <= 0
-        )
-
-        Then("exception should be thrown")
-        ints foreach (combination => an[IllegalArgumentException] should be thrownBy {
-
-          When(s"solution is applied to $combination")
-          applySolution(combination, 10)
-        })
-      }
+    "return IllegalArgumentException" when {
 
       "provided goal <= 0" in {
 
         Given("some valid ints combination")
-        val combination = List(1, 2)
+        val ints = List(1, 2)
 
         And("goal <= 0")
         val goal = -1
 
-        Then("exception should be thrown")
-        an[IllegalArgumentException] should be thrownBy {
+        When("solution is applied")
+        val result = applySolution(ints, goal)
 
-          When("solution is applied")
-          applySolution(combination, goal)
-        }
+        Then("result should be expected exception")
+        assertBrokenRequirement(result, "Positive goal is required.")
+      }
+
+      "no ints were given" in {
+
+        When("solution is applied to empty ints")
+        val result = applySolution(List.empty[Int], 10)
+
+        Then("result should be expected exception")
+        assertBrokenRequirement(result, "At least one weighable is required.")
+      }
+
+      "provided ints have values <= 0" in {
+
+        Given("invalid combinations of ints")
+        val intsCombinations = List(
+          List(0, 1), // int <= 0
+          List(-1, 1) // int <= 0
+        )
+
+        When("solution is applied to each ints combination")
+        val results = intsCombinations map (applySolution(_, 10))
+
+        Then("each result should be expected exception")
+        results.foreach(assertBrokenRequirement(_, "All weighables must be positive."))
       }
     }
 
@@ -54,7 +62,7 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
         val combinations = applySolution(ints, 12)
 
         Then("result should be empty")
-        combinations shouldBe empty
+        combinations shouldBe Good(List())
       }
 
       "every given int barely < goal" in {
@@ -66,7 +74,7 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
         val combinations = applySolution(ints, 12)
 
         Then("result should be empty")
-        combinations shouldBe empty
+        combinations shouldBe Good(List())
       }
     }
 
@@ -81,7 +89,7 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
         val combinations = applySolution(ints, 12)
 
         Then("result should be expected")
-        combinations shouldBe List(List(12))
+        combinations shouldBe Good(List(List(12)))
       }
 
       "ints combination sums to goal" in {
@@ -93,37 +101,35 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
         val combinations = applySolution(ints, 12)
 
         Then("result should be one expected combination")
-        sorted(combinations) shouldBe List(List(8, 2, 1, 1))
+        inside(combinations) { case Good(result) =>
+          sorted(result) shouldBe List(List(8, 2, 1, 1))
+        }
       }
     }
 
-    "return two combinations" when {
+    "return two combinations when ints have 2 values == goal" in {
 
-      "ints have 2 values == goal" in {
+      Given("ints with 2 values == goal")
+      val ints = List(12, 12, 9, 8)
 
-        Given("ints with 2 values == goal")
-        val ints = List(12, 12, 9, 8)
+      When("solution is applied")
+      val combinations = applySolution(ints, 12)
 
-        When("solution is applied")
-        val combinations = applySolution(ints, 12)
-
-        Then("result should be 2 expected combinations")
-        combinations shouldBe List(List(12), List(12))
-      }
+      Then("result should be 2 expected combinations")
+      combinations shouldBe Good(List(List(12), List(12)))
     }
 
-    "return many combinations" when {
+    "return many combinations when goal can be achieved summing different ints" in {
 
-      "goal can be achieved summing different ints" in {
+      Given("ints that may produce many combinations")
+      val ints = List(1, 1, 2, 3, 3, 4, 8, 9)
 
-        Given("ints that may produce many combinations")
-        val ints = List(1, 1, 2, 3, 3, 4, 8, 9)
+      When("solution is applied")
+      val combinations = applySolution(ints, 12)
 
-        When("solution is applied")
-        val combinations = applySolution(ints, 12)
-
-        Then("result should be expected")
-        sorted(combinations) shouldBe {
+      Then("result should be expected")
+      inside(combinations) { case Good(result) =>
+        sorted(result) shouldBe {
           (9, 3) * 2 :::
           (9, 2, 1) * 2 :::
           (8, 4) * 1 :::
@@ -138,7 +144,7 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with Match
 
   /* utils */
 
-  def applySolution(ints: List[Int], goal: Int): Combinations =
+  def applySolution(ints: List[Int], goal: Int): Combinations Or IllegalArgumentException =
     KnapsackSolutionForInts(goal)(ints)
 
   private def sorted(combinations: List[List[Int]]): List[List[Int]] =

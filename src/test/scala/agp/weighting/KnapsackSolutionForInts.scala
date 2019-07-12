@@ -1,28 +1,40 @@
 package agp.weighting
 
+import org.scalactic.Or
+
+/** Basic implementation of knapsack solution for ints that
+  * returns all combinations of given ints summing to goal.
+  */
 object KnapsackSolutionForInts {
 
-  /* public aliases */
   type Combination = List[Int]
   type Combinations = List[Combination]
 
-  /* private aliases */
   private type WCombination = List[WeighableInt]
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Int)(ints: List[Int]): Combinations = simplifySolution {
-    val solution = new GeneralKnapsackSolution[OrderedInt, WeighableInt]
-    solution(goal = WeighableInt(goal))(weighables = ints map WeighableInt)
+  /** Returns all combinations of given ints summing to goal */
+  def apply(goal: Int)(ints: List[Int]): Combinations Or IllegalArgumentException =
+    apply(goal, ints) map simplifyResult // if result is 'Good' then simplify it,
+                                         // otherwise return exception as it is
+
+  /** Applies [[agp.weighting.GeneralKnapsackSolution2]] to given goal & ints */
+  private def apply(goal: Int, ints: List[Int]): WCombinations Or IllegalArgumentException = {
+    val solution = new GeneralKnapsackSolution2[OrderedInt, WeighableInt]
+    val (adaptedGoal, weighables) = adaptForGeneralSolution(goal, ints)
+    solution(adaptedGoal)(weighables)
   }
 
-  /* Methods to simplify (unwrap) result of general solution into client-known types */
+  /** Wraps given goal & ints into weighables for general knapsack solution */
+  private def adaptForGeneralSolution(goal: Int, ints: List[Int]) =
+    (WeighableInt(goal), ints map WeighableInt)
 
-  private def simplifySolution(combinations: WCombinations)
-  : Combinations = combinations map simplifyCombination
+  /** Unwraps (simplifies) given combinations of weighables to List[Combination] */
+  private def simplifyResult(x: WCombinations): Combinations = x map simplify
 
-  private def simplifyCombination(combination: WCombination)
-  : Combination = combination map (_.weight.value)
+  /** Unwraps (simplifies) given combination of weighables to List[Int] */
+  private def simplify(x: WCombination): Combination = x map (_.weight.value)
 
   /* Auxiliary classes */
 

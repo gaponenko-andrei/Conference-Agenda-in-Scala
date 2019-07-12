@@ -1,8 +1,12 @@
 package agp
 
+import org.scalactic.{Bad, Good, Or}
+
 import scala.annotation.tailrec
 
 object Utils {
+
+  // RichSeq
 
   final implicit class RichSeq[T](seq: Seq[T]) {
     def equallyDividedInto(partitionsCount: Int): List[Seq[T]] = divideEqually(seq, partitionsCount)
@@ -28,4 +32,15 @@ object Utils {
            extra = seq.size % n).reverse
   }
 
+  // ExplainedRequirement
+
+  final implicit class ExplainedRequirement[T](value: => T) {
+    def given(condition: => Boolean) = new Given(condition)
+
+    final class Given(condition: => Boolean) {
+      def because(msg: String): T Or IllegalArgumentException =
+        if (condition) Good(value)
+        else Bad(new IllegalArgumentException(msg))
+    }
+  }
 }

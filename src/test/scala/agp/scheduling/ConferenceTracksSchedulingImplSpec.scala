@@ -1,12 +1,12 @@
 package agp.scheduling
 
-import agp.TestUtils._
+import agp.TestUtils
 import agp.composition._
 import agp.vo.{AfternoonSession, Lunch, MorningSession, NetworkingEvent, Talk}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
-class ConferenceTracksSchedulingImplSpec extends WordSpec with Matchers with GivenWhenThen with MockFactory {
+class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with GivenWhenThen with MockFactory {
 
   /* shorter alias for tested type */
   type TracksScheduling = ConferenceTracksSchedulingImpl

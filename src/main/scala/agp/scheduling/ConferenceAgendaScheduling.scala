@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 class ConferenceAgendaScheduling extends (Set[Talk] => Set[ConferenceTrack]) {
 
   private lazy val morningSessionComposition = new MorningSessionCompositionImpl(
-    knapsackSolution = KnapsackSolutionForTalks(goal = MorningSessionDuration)(_))
+    knapsackSolution = KnapsackSolutionForTalks(goal = MorningSessionDuration))
 
 
   override def apply(talks: Set[Talk]): Set[ConferenceTrack] = {
