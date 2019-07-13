@@ -1,5 +1,6 @@
 package agp.weighting
 
+import agp.Utils.OnMetReq
 import org.scalactic.Or
 
 /** Basic implementation of knapsack solution for ints that
@@ -15,12 +16,12 @@ object KnapsackSolutionForInts {
 
 
   /** Returns all combinations of given ints summing to goal */
-  def apply(goal: Int)(ints: List[Int]): Combinations Or IllegalArgumentException =
-    apply(goal, ints) map simplifyResult // if result is 'Good' then simplify it,
+  def apply(goal: Int)(ints: List[Int]): OnMetReq[Combinations] =
+    apply(ints, goal) map simplifyResult // if result is 'Good' then simplify it,
                                          // otherwise return exception as it is
 
   /** Applies [[agp.weighting.GeneralKnapsackSolution2]] to given goal & ints */
-  private def apply(goal: Int, ints: List[Int]): WCombinations Or IllegalArgumentException = {
+  private def apply(ints: List[Int], goal: Int): OnMetReq[WCombinations] = {
     val solution = new GeneralKnapsackSolution2[OrderedInt, WeighableInt]
     val (adaptedGoal, weighables) = adaptForGeneralSolution(goal, ints)
     solution(adaptedGoal)(weighables)

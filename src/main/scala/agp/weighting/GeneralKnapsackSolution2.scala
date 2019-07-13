@@ -10,7 +10,6 @@ import scala.annotation.tailrec
   */
 final class GeneralKnapsackSolution2[T <: Ordered[T], W <: Weighable[T]] {
 
-  /* private aliases */
   private type Goal = Weighable[T]
   private type Weighables = List[W]
   private type Combination = List[W]

@@ -34,6 +34,9 @@ object Utils {
 
   // ExplainedRequirement
 
+  /** Alias for "on met requirements" */
+  type OnMetReq[T] = T Or IllegalArgumentException
+
   final implicit class ExplainedRequirement[T](value: => T) {
     def given(condition: => Boolean) = new Given(condition)
 

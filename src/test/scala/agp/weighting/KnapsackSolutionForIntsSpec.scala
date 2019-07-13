@@ -1,13 +1,14 @@
 package agp.weighting
 
 import agp.TestUtils
+import agp.Utils.OnMetReq
 import agp.weighting.KnapsackSolutionForInts.Combinations
 import org.scalactic.{Good, Or}
 import org.scalatest._
 
 class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with TestUtils {
 
-  "Solution" should {
+  "KnapsackSolutionForInts" should {
 
     "return IllegalArgumentException" when {
 
@@ -37,17 +38,14 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with TestU
 
       "provided ints have values <= 0" in {
 
-        Given("invalid combinations of ints")
-        val intsCombinations = List(
-          List(0, 1), // int <= 0
-          List(-1, 1) // int <= 0
-        )
+        Given("some ints combinations with values <= 0")
+        val intsCombinations = List(List(0, 1), List(-1, 1))
 
         When("solution is applied to each ints combination")
         val results = intsCombinations map (applySolution(_, 10))
 
         Then("each result should be expected exception")
-        results.foreach(assertBrokenRequirement(_, "All weighables must be positive."))
+        results foreach (assertBrokenRequirement(_, "All weighables must be positive."))
       }
     }
 
@@ -144,7 +142,7 @@ class KnapsackSolutionForIntsSpec extends WordSpec with GivenWhenThen with TestU
 
   /* utils */
 
-  def applySolution(ints: List[Int], goal: Int): Combinations Or IllegalArgumentException =
+  def applySolution(ints: List[Int], goal: Int): OnMetReq[Combinations] =
     KnapsackSolutionForInts(goal)(ints)
 
   private def sorted(combinations: List[List[Int]]): List[List[Int]] =

@@ -2,6 +2,7 @@ package agp
 
 import java.util.UUID.randomUUID
 
+import agp.Utils.OnMetReq
 import agp.scheduling.{ConferenceTrack, Scheduling}
 import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
 import org.scalactic.{Bad, Or}
@@ -25,7 +26,7 @@ trait TestUtils extends Inside with Matchers {
 
   def eventsOf(schedulings: List[Scheduling]): List[Event] = schedulings map (_.event)
 
-  def assertBrokenRequirement(obj: Any Or IllegalArgumentException, msg: String): Assertion =
+  def assertBrokenRequirement(obj: OnMetReq[Any], msg: String): Assertion =
     inside(obj) { case Bad(ex: IllegalArgumentException) => ex should have message msg }
 
   // ExtendedConferenceTrack
