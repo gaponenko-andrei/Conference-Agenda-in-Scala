@@ -1,6 +1,8 @@
 package agp
 
+import agp.Utils.OnMetReq
 import agp.vo.{AfternoonSession, MorningSession, Talk}
+import org.scalactic.Or
 
 package object composition {
 
@@ -10,6 +12,9 @@ package object composition {
   type AfternoonSessionComposition = Set[Talk] => AfternoonSessionCompositionResult
   type AfternoonSessionsComposition = Set[Talk] => AfternoonSessionsCompositionResult
 
+  type MorningSessionComposition2 = Set[Talk] => OnMetReq[MorningSessionCompositionResult]
+  type MorningSessionsComposition2 = Set[Talk] => OnMetReq[MorningSessionsCompositionResult]
+
   /* aliases for composition results */
   type MorningSessionCompositionResult = SessionCompositionResult[MorningSession]
   type MorningSessionsCompositionResult = SessionsCompositionResult[MorningSession]
@@ -18,5 +23,5 @@ package object composition {
 
   /* specialized exception */
   final case class Exception private[composition](message: String, cause: Throwable = null)
-    extends RuntimeException(message, cause)
+    extends IllegalArgumentException(message, cause)
 }
