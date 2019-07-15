@@ -4,7 +4,7 @@ import java.util.UUID.randomUUID
 
 import agp.Utils.OnMetReq
 import agp.scheduling.{ConferenceTrack, Scheduling}
-import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Talk}
+import agp.vo.{AfternoonSession, Event, Lunch, MorningSession, NetworkingEvent, Session, Talk}
 import org.scalactic.{Bad, Or}
 import org.scalatest.{Assertion, Inside, Matchers}
 

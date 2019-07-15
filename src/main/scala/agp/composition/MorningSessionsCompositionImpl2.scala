@@ -9,7 +9,12 @@ import org.scalactic.{Bad, Good}
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 
-
+/** Component to compose required number of morning sessions
+  * using given [[agp.composition.KnapsackSolution]] for talks.
+  *
+  * Returns [[agp.composition.MorningSessionsCompositionResult]] if
+  * composition was successful, [[IllegalArgumentException]] otherwise.
+  */
 final class MorningSessionsCompositionImpl2(
   val requiredSessionsNumber: Int,
   val knapsackSolution: (Set[Talk] => OnMetReq[TalksCombinations])
@@ -26,10 +31,12 @@ final class MorningSessionsCompositionImpl2(
   private def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession] = Queue()): OnMetReq[Result] =
     if (sessions.size == requiredSessionsNumber) {
       Good(new Result(sessions.toSet, unusedTalks))
-    } else composeSessionFrom(unusedTalks) match {
-      case Bad(ex: IllegalArgumentException) => Bad(ex)
-      case Good(res: MorningSessionCompositionResult) =>
-        compose(res.unusedTalks, sessions :+ res.session)
+    } else {
+      composeSessionFrom(unusedTalks) match {
+        case Bad(ex: IllegalArgumentException) => Bad(ex)
+        case Good(res: MorningSessionCompositionResult) =>
+          compose(res.unusedTalks, sessions :+ res.session)
+      }
     }
 
   /* Methods to compose instance of MorningSession */

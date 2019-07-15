@@ -1,19 +1,18 @@
 package agp.vo
 
+import agp.vo.Talk.{MaxDuration, MinDuration}
+
 import scala.concurrent.duration._
-import Talk.{MaxDuration, MinDuration}
 
 // Event
 
 sealed abstract class Event extends EventLike {
 
-  final def canEqual(other: Any): Boolean = this.getClass == other.getClass
+  def canEqual(other: Any): Boolean = other.isInstanceOf[Event]
 
-  // event is a reference object - equality is defined in terms of title
+  // event is a reference object - equality is determined by title
   final override def equals(other: Any): Boolean = other match {
-    case that: Event =>
-      (that canEqual this) &&
-      title == that.title
+    case that: Event => (that canEqual this) && title == that.title
     case _ => false
   }
 
@@ -45,10 +44,10 @@ sealed abstract case class Talk private(
 ) extends Event {
 
   require(title.nonEmpty, "Talk title must have some chars.")
-  require(
-    duration >= MinDuration && duration <= MaxDuration,
-    s"Talk duration must ∈ [$MinDuration, $MaxDuration]."
-  )
+  require(duration >= MinDuration && duration <= MaxDuration,
+         s"Talk duration must ∈ [$MinDuration, $MaxDuration].")
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Talk]
 }
 
 object Talk {

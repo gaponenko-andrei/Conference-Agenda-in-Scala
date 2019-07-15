@@ -1,10 +1,11 @@
 package agp
 
 import agp.Utils.OnMetReq
-import agp.vo.{AfternoonSession, MorningSession, Talk}
-import org.scalactic.Or
+import agp.vo.{AfternoonSession, MorningSession, Talk, TalksCombinations}
 
 package object composition {
+
+  type KnapsackSolution = Set[Talk] => OnMetReq[TalksCombinations]
 
   /* aliases for compositions */
   type MorningSessionComposition = Set[Talk] => MorningSessionCompositionResult
