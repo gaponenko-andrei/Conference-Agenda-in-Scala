@@ -37,11 +37,14 @@ class MorningSessionsCompositionImpl2Spec extends WordSpec
         And("sessions composition using them")
         val composition = new Composition(requiredSessionsNumber, knapsackSolution)
 
-        When("composition is applied")
-        val result = composition(2 talks)
+        for (talks <- Seq(0 talks, 1 talks, 2 talks)) {
 
-        Then("result should be expected exception")
-        assertBrokenRequirement(result, "Talks.size is 2, but must be >= 3.")
+          When(s"composition is applied to ${talks.size} talks")
+          val result = composition(talks)
+
+          Then("result should be expected exception")
+          assertBrokenRequirement(result, s"Talks.size is ${talks.size}, but must be >= 3.")
+        }
       }
 
       "knapsack solution returns IllegalArgumentException" in {

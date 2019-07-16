@@ -5,6 +5,7 @@ import agp.composition.AfternoonSessionsCompositionImpl2.Result
 import agp.vo.{AfternoonSession, Talk}
 import org.scalactic.Good
 
+// todo
 final class AfternoonSessionsCompositionImpl2(val requiredSessionsNumber: Int)
   extends AfternoonSessionsComposition2 {
 
