@@ -5,7 +5,20 @@ import agp.composition.AfternoonSessionsCompositionImpl2.Result
 import agp.vo.{AfternoonSession, Talk}
 import org.scalactic.Good
 
-// todo
+/**
+  * Function to compose required number of afternoon sessions.
+  *
+  * Applying this to talks returns an object with composed
+  * sessions & unused talks, if composition was successful,
+  * i.e. [[agp.composition.AfternoonSessionsCompositionResult]].
+  *
+  * If requirements for successful composition were not met, then
+  * `IllegalArgumentException` is returned with detailed explanation.
+  *
+  * Take note that this particular implementation never leaves any
+  * talks unused, so corresponding result field will always be an
+  * empty set of talks. This is made for generalization purpose.
+  */
 final class AfternoonSessionsCompositionImpl2(val requiredSessionsNumber: Int)
   extends AfternoonSessionsComposition2 {
 

@@ -15,7 +15,7 @@ import scala.collection.immutable.Queue
   *
   * Applying this to talks returns an object with composed
   * sessions & unused talks, if composition was successful,
-  * namely [[agp.composition.MorningSessionsCompositionResult]].
+  * i.e. [[agp.composition.MorningSessionsCompositionResult]].
   *
   * If requirements for successful composition were not met, then
   * `IllegalArgumentException` is returned with detailed explanation.
