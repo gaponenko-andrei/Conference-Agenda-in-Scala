@@ -15,6 +15,7 @@ package object composition {
 
   type MorningSessionComposition2 = Set[Talk] => OnMetReq[MorningSessionCompositionResult]
   type MorningSessionsComposition2 = Set[Talk] => OnMetReq[MorningSessionsCompositionResult]
+  type AfternoonSessionsComposition2 = Set[Talk] => OnMetReq[AfternoonSessionsCompositionResult]
 
   /* aliases for composition results */
   type MorningSessionCompositionResult = SessionCompositionResult[MorningSession]

@@ -25,7 +25,7 @@ final class MorningSessionsCompositionImpl2(
   val knapsackSolution: (Set[Talk] => OnMetReq[TalksCombinations])
 ) extends MorningSessionsComposition2 {
 
-  /** Returns required number of morning sessions in case composition was successful.
+  /** Returns required number of morning sessions if composition was successful.
     * Otherwise returns `IllegalArgumentException` with detailed error message
     */
   override def apply(talks: Set[Talk]): OnMetReq[Result] =
