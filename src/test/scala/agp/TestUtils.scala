@@ -22,9 +22,9 @@ trait TestUtils extends Inside with Matchers {
   def talksOf(tracks: Set[ConferenceTrack]): Set[Talk] =
     tracks.flatten.collect { case Scheduling(talk: Talk, _) => talk }
 
-  def eventsOf(schedulings: Set[Scheduling]): Set[Event] = schedulings map (_.event)
+  def eventsOf(track: ConferenceTrack): Set[Event] = eventsOf(track.schedulings)
 
-  def eventsOf(schedulings: List[Scheduling]): List[Event] = schedulings map (_.event)
+  def eventsOf(schedulings: Set[Scheduling]): Set[Event] = schedulings map (_.event)
 
   def assertBrokenRequirement(obj: OnMetReq[Any], msg: String): Assertion =
     inside(obj) { case Bad(ex: IllegalArgumentException) => ex should have message msg }
@@ -32,8 +32,6 @@ trait TestUtils extends Inside with Matchers {
   // ExtendedConferenceTrack
 
   implicit final class ExtendedConferenceTrack(track: ConferenceTrack) {
-
-    lazy val events: Set[Event] = eventsOf(track)
 
     lazy val eventsBeforeLunch: Set[Event] = eventsOf(schedulingsBeforeLunch)
 

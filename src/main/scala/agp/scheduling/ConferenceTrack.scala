@@ -7,16 +7,13 @@ import agp.vo.{Event, EventLike}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
 
-final case class ConferenceTrack private(
+final case class ConferenceTrack private[scheduling](
   override val title: String,
-  private val schedulings: Set[Scheduling]
-) extends Set[Scheduling] with EventLike {
+  schedulings: Set[Scheduling]
+) extends Iterable[Scheduling] with EventLike {
 
   override def duration: Duration = schedulings.duration
   override def iterator: Iterator[Scheduling] = schedulings.iterator
-  override def contains(elem: Scheduling): Boolean = schedulings.contains(elem)
-  override def +(elem: Scheduling): Set[Scheduling] = throw new UnsupportedOperationException
-  override def -(elem: Scheduling): Set[Scheduling] = throw new UnsupportedOperationException
 }
 
 object ConferenceTrack {
