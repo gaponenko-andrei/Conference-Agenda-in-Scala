@@ -10,4 +10,6 @@
 + ConferenceAgendaScheduling
 + FileParsing
 + EntryPoint
-- Self-review
++ Self-review
+- ConferenceTrackBuilder2
+- ConferenceTracksSchedulingImpl2
