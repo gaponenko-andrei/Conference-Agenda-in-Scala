@@ -11,5 +11,5 @@
 + FileParsing
 + EntryPoint
 + Self-review
-- ConferenceTrackBuilder2
-- ConferenceTracksSchedulingImpl2
++ ConferenceTracksSchedulingImpl2
+- AfternoonSessionsComposition2 type refactoring

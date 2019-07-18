@@ -2,9 +2,8 @@ package agp.composition
 
 import agp.Utils._
 import agp.composition
-import agp.composition.MorningSessionsCompositionImpl2.Result
 import agp.vo.{MorningSession, Talk, TalksCombinations}
-import org.scalactic.{Bad, Good}
+import org.scalactic.{Bad, Good, Or}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -25,40 +24,43 @@ final class MorningSessionsCompositionImpl2(
   val knapsackSolution: (Set[Talk] => OnMetReq[TalksCombinations])
 ) extends MorningSessionsComposition2 {
 
+  private type OnSuccess[T] = T Or composition.Exception
+  private type Result = MorningSessionsCompositionResult
+  private type SessionCompositionResult = agp.composition.SessionCompositionResult[MorningSession]
+
   /** Returns required number of morning sessions if composition was successful.
-    * Otherwise returns `IllegalArgumentException` with detailed error message
+    * Otherwise returns [[agp.composition.Exception]] with detailed error message
     */
-  override def apply(talks: Set[Talk]): OnMetReq[Result] =
-    validated(talks) flatMap (compose(_))
+  override def apply(talks: Set[Talk]): OnSuccess[Result] =
+    validated(talks) flatMap (compose(_, Queue.empty))
 
   /** Returns validated instance of given talks in case they pass preconditions
-    * set by this function or `IllegalArgumentException` with error message
+    * set by this function or [[agp.composition.Exception]] with error message
     */
-  private def validated(talks: Set[Talk]): OnMetReq[Set[Talk]] =
-    talks given talks.size >= requiredSessionsNumber because
-    s"Talks.size is ${talks.size}, but must be >= $requiredSessionsNumber."
+  private def validated(talks: Set[Talk]): Set[Talk] Or composition.Exception =
+    if (talks.size >= requiredSessionsNumber) Good(talks)
+    else Bad(composition.Exception(
+      s"Talks.size is ${talks.size}, " +
+      s"but must be >= $requiredSessionsNumber."))
 
   /** Actual composition; accumulates morning sessions until there is enough of them
-    * or returns `IllegalArgumentException` if available (unused) talks cannot be
+    * or returns [[agp.composition.Exception]] if available (unused) talks cannot be
     * composed into morning session using given knapsack solution for some reason
     */
   @tailrec
-  private def compose(unusedTalks: Set[Talk], sessions: Queue[MorningSession] = Queue()): OnMetReq[Result] =
-    if (sessions.size == requiredSessionsNumber) {
-      Good(new Result(sessions.toSet, unusedTalks))
-    } else {
-      composeSessionFrom(unusedTalks) match {
-        case Bad(iea: IllegalArgumentException) => Bad(iea)
-        case Good(res: MorningSessionCompositionResult) =>
-          compose(res.unusedTalks, sessions :+ res.session)
-      }
+  private def compose(unused: Set[Talk], sessions: Queue[MorningSession]): OnSuccess[Result] =
+    if (sessions.size == requiredSessionsNumber)
+      Good(new Result(sessions.toSet, unused))
+    else composeSessionFrom(unused) match {
+      case Bad(ex: composition.Exception) => Bad(ex)
+      case Good(i: SessionCompositionResult) =>
+        compose(i.unusedTalks, sessions :+ i.session)
     }
 
-  /** Applies [[agp.composition.MorningSessionComposition2]] to
-    * given talks, returning composed session & unused talks
+  /** Performs composition of session for given talks, returning it along with unused talks
     */
-  private def composeSessionFrom: MorningSessionComposition2 =
-    talks => findSuitableCombinationsAmong(talks) match {
+  private def composeSessionFrom(talks: Set[Talk]): OnSuccess[SessionCompositionResult] = {
+    findSuitableCombinationsAmong(talks) match {
 
       case Good(combinations) if combinations.isEmpty =>
         Bad(newCompositionFailureException)
@@ -69,6 +71,7 @@ final class MorningSessionsCompositionImpl2(
       case Bad(ex: IllegalArgumentException) =>
         Bad(newIllegalTalksException(ex))
     }
+  }
 
   private def newCompositionFailureException = composition.Exception(
     "Failed to compose morning session. No suitable combinations " +
@@ -85,9 +88,5 @@ final class MorningSessionsCompositionImpl2(
       unusedTalks = allTalks except sessionTalks)
 
   /** An alias for better comprehension of what knapsack solution actually does */
-  def findSuitableCombinationsAmong(talks: Set[Talk]) = knapsackSolution(talks)
-}
-
-object MorningSessionsCompositionImpl2 {
-  type Result = MorningSessionsCompositionResult
+  private def findSuitableCombinationsAmong(talks: Set[Talk]) = knapsackSolution(talks)
 }
