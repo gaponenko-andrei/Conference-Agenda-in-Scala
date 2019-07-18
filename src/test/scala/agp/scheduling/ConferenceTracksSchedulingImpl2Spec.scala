@@ -31,10 +31,9 @@ class ConferenceTracksSchedulingImpl2Spec extends WordSpec with TestUtils with G
         val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
         Then("result should be expected exception")
-        inside(result) {
-          case Bad(ex: agp.scheduling.Exception) =>
-            ex.cause shouldBe composition.Exception("original")
-            ex.message shouldBe "Failed to schedule conference tracks."
+        inside(result) { case Bad(ex: agp.scheduling.Exception) =>
+          ex.cause shouldBe composition.Exception("original")
+          ex.message shouldBe "Failed to schedule conference tracks."
         }
       }
 
@@ -50,10 +49,9 @@ class ConferenceTracksSchedulingImpl2Spec extends WordSpec with TestUtils with G
         val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
         Then("application result should be expected")
-        inside(result) {
-          case Bad(ex: agp.scheduling.Exception) =>
-            ex.cause shouldBe composition.Exception("original")
-            ex.message shouldBe "Failed to schedule conference tracks."
+        inside(result) { case Bad(ex: agp.scheduling.Exception) =>
+          ex.cause shouldBe composition.Exception("original")
+          ex.message shouldBe "Failed to schedule conference tracks."
         }
       }
     }
