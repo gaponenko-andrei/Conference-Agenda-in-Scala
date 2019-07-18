@@ -24,6 +24,6 @@ package object composition {
   type AfternoonSessionsCompositionResult = SessionsCompositionResult[AfternoonSession]
 
   /* specialized exception */
-  final case class Exception private[composition](message: String, cause: Throwable = null)
+  final case class Exception (message: String, cause: Throwable = null)
     extends IllegalArgumentException(message, cause)
 }

@@ -2,9 +2,9 @@ package agp.scheduling
 
 import java.time.LocalTime
 
-import agp.TestUtils
 import agp.composition._
-import agp.vo.{AfternoonSession, MorningSession, Talk}
+import agp.vo.{AfternoonSession, Lunch, MorningSession, NetworkingEvent, Talk}
+import agp.{TestUtils, composition}
 import org.scalactic.{Bad, Good}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, WordSpec}
@@ -22,22 +22,18 @@ class ConferenceTracksSchedulingImpl2Spec extends WordSpec with TestUtils with G
       "morning sessions composition returns exception" in {
 
         Given("morning sessions composition returning exception")
-        val msException = new IllegalArgumentException
-        val msComposition = (_: Set[Talk]) => Bad(msException)
+        val msComposition = (_: Set[Talk]) => Bad(composition.Exception("original"))
 
         And("afternoon sessions composition returning some sessions")
         val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
-        And("scheduling using them")
-        val scheduling = newTracksScheduling(msComposition, asComposition)
-
-        When("scheduling is applied")
-        val result = scheduling(someTalks)
+        When("scheduling using them is applied to some talks")
+        val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
         Then("result should be expected exception")
         inside(result) {
           case Bad(ex: agp.scheduling.Exception) =>
-            ex.cause shouldBe msException
+            ex.cause shouldBe composition.Exception("original")
             ex.message shouldBe "Failed to schedule conference tracks."
         }
       }
@@ -48,30 +44,139 @@ class ConferenceTracksSchedulingImpl2Spec extends WordSpec with TestUtils with G
         val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
 
         And("afternoon sessions composition returning exception")
-        val asException = new IllegalArgumentException
-        val asComposition = (_: Set[Talk]) => Bad(asException)
+        val asComposition = (_: Set[Talk]) => Bad(composition.Exception("original"))
 
-        And("scheduling using them")
-        val scheduling = newTracksScheduling(msComposition, asComposition)
-
-        When("scheduling is applied")
-        val result = scheduling(someTalks)
+        When("scheduling using them is applied to some talks")
+        val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
         Then("application result should be expected")
         inside(result) {
           case Bad(ex: agp.scheduling.Exception) =>
-            ex.cause shouldBe asException
+            ex.cause shouldBe composition.Exception("original")
             ex.message shouldBe "Failed to schedule conference tracks."
         }
       }
     }
 
+    "schedule tracks based on composed number of morning & afternoon sessions pairs" in {
+
+      List((0, 0), (0, 1), (1, 0), (10, 10)).foreach { case (i, j) =>
+
+        Given(s"morning sessions composition returning $i sessions")
+        val msComposition = newMorningSessionsCompositionReturning(i morningSessions)
+
+        And(s"afternoon sessions composition returning $j sessions")
+        val asComposition = newAfternoonSessionsCompositionReturning(j afternoonSessions)
+
+        When("scheduling using them is applied to some talks")
+        val result = newTracksScheduling(msComposition, asComposition)(someTalks)
+
+        Then(s"number of tracks should be ${i min j}")
+        inside(result) { case Good(tracks) => tracks.size shouldBe (i min j) }
+      }
+    }
+
+    "schedule tracks with expected talks" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val morningSessions = 2 morningSessions
+      val msComposition = newMorningSessionsCompositionReturning(morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val afternoonSessions = 2 afternoonSessions
+      val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("tracks should have expected talks")
+      inside(result) { case Good(tracks) =>
+        val morningTalks = morningSessions.flatten
+        val afternoonTalks = afternoonSessions.flatten
+        talksOf(tracks) shouldBe (morningTalks ++ afternoonTalks)
+      }
+    }
+
+    "schedule tracks with Lunch & NetworkingEvent" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("each track should contain scheduling of Lunch & NetworkingEvent")
+      inside(result) { case Good(tracks) =>
+        tracks.foreach(eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
+      }
+    }
+
+    "nothing should be scheduled after NetworkingEvent" in {
+
+      Given("morning sessions composition returning 3 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(3 morningSessions)
+
+      And("afternoon sessions composition returning 3 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(3 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("each track should have scheduling of NetworkingEvent as the last one")
+      inside(result) { case Good(tracks) =>
+        tracks.foreach(_.max.event shouldBe NetworkingEvent)
+      }
+    }
+
+    "schedule talks of morning sessions before lunch" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val morningSessions = 2 morningSessions
+      val msComposition = newMorningSessionsCompositionReturning(morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("morning session talks should be scheduled before lunch")
+      inside(result map (_.toVector)) { case Good(tracks) =>
+        morningSessions foreach (_.talks should {
+          equal(tracks(0).eventsBeforeLunch) or
+          equal(tracks(1).eventsBeforeLunch)
+        })
+      }
+    }
+
+    "schedule talks of afternoon sessions after lunch" in {
+
+      Given("morning sessions composition returning 2 sessions")
+      val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
+
+      And("afternoon sessions composition returning 2 sessions")
+      val afternoonSessions = 2 afternoonSessions
+      val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
+
+      When("scheduling using them is applied to some talks")
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
+
+      Then("afternoon session talks should be scheduled after lunch")
+      inside(result map (_.toVector)) { case Good(tracks) =>
+        afternoonSessions foreach (_.talks should {
+          equal(tracks(0).talksAfterLunch) or
+          equal(tracks(1).talksAfterLunch)
+        })
+      }
+    }
   }
 
   /* utils */
 
-  def newTracksScheduling =
-    new TracksScheduling(LocalTime.of(9, 0))(_, _)
+  def newTracksScheduling = new TracksScheduling(LocalTime.of(9, 0))(_, _)
 
   def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition2 =
     _ => Good(new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks))

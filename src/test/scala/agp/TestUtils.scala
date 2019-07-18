@@ -33,6 +33,8 @@ trait TestUtils extends Inside with Matchers {
 
   implicit final class ExtendedConferenceTrack(track: ConferenceTrack) {
 
+    lazy val talksAfterLunch: Set[Talk] = eventsAfterLunch collect { case i: Talk => i }
+
     lazy val eventsBeforeLunch: Set[Event] = eventsOf(schedulingsBeforeLunch)
 
     lazy val eventsAfterLunch: Set[Event] = eventsOf(schedulingsAfterLunch)
