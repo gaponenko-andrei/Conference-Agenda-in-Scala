@@ -2,7 +2,6 @@ package agp.scheduling
 
 import java.time.LocalTime
 
-import agp.Utils.OnMetReq
 import agp.composition._
 import agp.{composition, scheduling}
 import agp.vo._
@@ -32,7 +31,7 @@ class ConferenceTracksSchedulingImpl2(val trackStartTime: LocalTime)(
   /** Returns conference tracks scheduled from given talks if scheduling
     * was successful, otherwise returns exception with details on error
     */
-  override def apply(allTalks: Talks): Tracks Or scheduling.Exception =
+  override def apply(allTalks: Talks): ExceptionOr[Tracks] =
     schedule(allTalks) badMap detalize2SchedulingException
 
   /** Wraps given throwable into specialized (scheduling) exception

@@ -6,6 +6,7 @@ import org.scalactic.Or
 
 package object composition {
 
+  /* specialized exception that should be thrown by every component of the package in case of failure */
   final case class Exception (message: String, cause: Throwable = null) extends RuntimeException(message, cause)
 
   private[composition] type ExceptionOr[T] = T Or composition.Exception

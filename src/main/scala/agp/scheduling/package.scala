@@ -7,10 +7,11 @@ import scala.language.higherKinds
 
 package object scheduling {
 
-  type ConferenceTracksScheduling = Set[Talk] => Set[ConferenceTrack]
-  type ConferenceTracksScheduling2 = Set[Talk] => Set[ConferenceTrack] Or scheduling.Exception
+  /* specialized exception that should be thrown by every component of the package in case of failure */
+  final case class Exception (message: String, cause: Throwable = null) extends RuntimeException(message, cause)
 
-  /* specialized exception */
-  final case class Exception private[scheduling](message: String, cause: Throwable = null)
-    extends IllegalArgumentException(message, cause)
+  private[scheduling] type ExceptionOr[T] = T Or scheduling.Exception
+
+  type ConferenceTracksScheduling = Set[Talk] => Set[ConferenceTrack]
+  type ConferenceTracksScheduling2 = Set[Talk] => ExceptionOr[Set[ConferenceTrack]]
 }

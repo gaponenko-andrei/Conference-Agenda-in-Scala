@@ -3,7 +3,7 @@ package agp.composition
 import agp.Utils._
 import agp.composition
 import agp.vo.{MorningSession, Talk, TalksCombinations}
-import org.scalactic.{Bad, Good, Or}
+import org.scalactic.{Bad, Good}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Queue
@@ -25,6 +25,7 @@ final class MorningSessionsCompositionImpl2(
 ) extends MorningSessionsComposition2 {
 
   private type Result = MorningSessionsCompositionResult
+  // todo think about removing type altogether
   private type SessionCompositionResult = agp.composition.SessionCompositionResult[MorningSession]
 
   /** Returns required number of morning sessions if composition was successful.

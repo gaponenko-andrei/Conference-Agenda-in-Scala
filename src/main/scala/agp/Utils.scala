@@ -32,7 +32,7 @@ object Utils {
            extra = seq.size % n).reverse
   }
 
-  // ExplainedRequirement
+  // ExplainedRequirement // todo generalize for all exceptions
 
   /** Alias for "on met requirements" */
   type OnMetReq[T] = T Or IllegalArgumentException

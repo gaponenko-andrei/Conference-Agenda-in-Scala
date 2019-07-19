@@ -1,7 +1,6 @@
 package agp.weighting
 
-import agp.Utils.ExplainedRequirement
-import org.scalactic.Or
+import agp.Utils.{ExplainedRequirement, OnMetReq}
 
 import scala.annotation.tailrec
 
@@ -16,7 +15,7 @@ final class GeneralKnapsackSolution2[T <: Ordered[T], W <: Weighable[T]] {
   private type Combinations = List[Combination]
 
 
-  def apply(goal: Goal)(weighables: Weighables): Combinations Or IllegalArgumentException = for {
+  def apply(goal: Goal)(weighables: Weighables): OnMetReq[Combinations] = for {
 
     _ <- goal given
          goal.isPositive because

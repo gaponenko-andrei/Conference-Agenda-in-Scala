@@ -11,7 +11,6 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
   /* shorter alias for tested type */
   type TracksScheduling = ConferenceTracksSchedulingImpl
 
-
   "ConferenceTracksSchedulingImpl" should {
 
     "throw" when {
