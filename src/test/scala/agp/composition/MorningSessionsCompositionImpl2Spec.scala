@@ -43,7 +43,7 @@ class MorningSessionsCompositionImpl2Spec extends WordSpec
           val result = composition(talks)
 
           Then("result should be expected exception")
-          assertBrokenRequirement(result, s"Talks.size is ${talks.size}, but must be >= 3.")
+          assertFailedComposition(result, s"Talks.size is ${talks.size}, but must be >= 3.")
         }
       }
 
@@ -62,7 +62,7 @@ class MorningSessionsCompositionImpl2Spec extends WordSpec
         val result = composition(3 talks)
 
         Then("result should be expected exception")
-        assertBrokenRequirement(result,
+        assertFailedComposition(result,
           "Failed to compose morning session. Given talks " +
           "didn't meet requirements of knapsack solution.")
       }
@@ -82,7 +82,7 @@ class MorningSessionsCompositionImpl2Spec extends WordSpec
         val result = composition(3 talks)
 
         Then("result should be expected exception")
-        assertBrokenRequirement(result,
+        assertFailedComposition(result,
           "Failed to compose morning session. No suitable combinations " +
           "of talks were found for given knapsack solution & talks.")
       }
@@ -145,7 +145,7 @@ class MorningSessionsCompositionImpl2Spec extends WordSpec
       Then("result should have expected unused talks")
       inside(result) { case Good(x) =>
         val used = x.sessions.flatten
-        val unused = talks except used
+        val unused = talks -- used
         x.unusedTalks shouldBe unused
       }
     }

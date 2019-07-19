@@ -24,20 +24,19 @@ final class MorningSessionsCompositionImpl2(
   val knapsackSolution: (Set[Talk] => OnMetReq[TalksCombinations])
 ) extends MorningSessionsComposition2 {
 
-  private type OnSuccess[T] = T Or composition.Exception
   private type Result = MorningSessionsCompositionResult
   private type SessionCompositionResult = agp.composition.SessionCompositionResult[MorningSession]
 
   /** Returns required number of morning sessions if composition was successful.
     * Otherwise returns [[agp.composition.Exception]] with detailed error message
     */
-  override def apply(talks: Set[Talk]): OnSuccess[Result] =
+  override def apply(talks: Set[Talk]): ExceptionOr[Result] =
     validated(talks) flatMap (compose(_, Queue.empty))
 
   /** Returns validated instance of given talks in case they pass preconditions
     * set by this function or [[agp.composition.Exception]] with error message
     */
-  private def validated(talks: Set[Talk]): Set[Talk] Or composition.Exception =
+  private def validated(talks: Set[Talk]): ExceptionOr[Set[Talk]] =
     if (talks.size >= requiredSessionsNumber) Good(talks)
     else Bad(composition.Exception(
       s"Talks.size is ${talks.size}, " +
@@ -48,36 +47,36 @@ final class MorningSessionsCompositionImpl2(
     * composed into morning session using given knapsack solution for some reason
     */
   @tailrec
-  private def compose(unused: Set[Talk], sessions: Queue[MorningSession]): OnSuccess[Result] =
+  private def compose(unused: Set[Talk], sessions: Queue[MorningSession]): ExceptionOr[Result] =
     if (sessions.size == requiredSessionsNumber)
       Good(new Result(sessions.toSet, unused))
     else composeSessionFrom(unused) match {
-      case Bad(ex: composition.Exception) => Bad(ex)
+      case Bad(e: composition.Exception) => Bad(e)
       case Good(i: SessionCompositionResult) =>
         compose(i.unusedTalks, sessions :+ i.session)
     }
 
   /** Performs composition of session for given talks, returning it along with unused talks
     */
-  private def composeSessionFrom(talks: Set[Talk]): OnSuccess[SessionCompositionResult] = {
+  private def composeSessionFrom(talks: Set[Talk]): ExceptionOr[SessionCompositionResult] = {
     findSuitableCombinationsAmong(talks) match {
 
       case Good(combinations) if combinations.isEmpty =>
-        Bad(newCompositionFailureException)
+        Bad(newZeroCombinationsException)
 
       case Good(combinations) if combinations.nonEmpty =>
         Good(newSessionCompositionResult(talks, combinations.head))
 
       case Bad(ex: IllegalArgumentException) =>
-        Bad(newIllegalTalksException(ex))
+        Bad(newInvalidTalksException(ex))
     }
   }
 
-  private def newCompositionFailureException = composition.Exception(
+  private def newZeroCombinationsException = composition.Exception(
     "Failed to compose morning session. No suitable combinations " +
     "of talks were found for given knapsack solution & talks.")
 
-  private def newIllegalTalksException(ex: IllegalArgumentException) =
+  private def newInvalidTalksException(ex: IllegalArgumentException) =
     composition.Exception(
       "Failed to compose morning session. Given talks " +
       "didn't meet requirements of knapsack solution.", ex)
@@ -85,7 +84,7 @@ final class MorningSessionsCompositionImpl2(
   private def newSessionCompositionResult(allTalks: Set[Talk], sessionTalks: Set[Talk]) =
     new MorningSessionCompositionResult(
       session = MorningSession(sessionTalks),
-      unusedTalks = allTalks except sessionTalks)
+      unusedTalks = allTalks -- sessionTalks)
 
   /** An alias for better comprehension of what knapsack solution actually does */
   private def findSuitableCombinationsAmong(talks: Set[Talk]) = knapsackSolution(talks)

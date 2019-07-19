@@ -29,6 +29,9 @@ trait TestUtils extends Inside with Matchers {
   def assertBrokenRequirement(obj: OnMetReq[Any], msg: String): Assertion =
     inside(obj) { case Bad(ex: IllegalArgumentException) => ex should have message msg }
 
+  def assertFailedComposition(obj: Any Or composition.Exception, msg: String): Assertion =
+    inside(obj) { case Bad(ex: composition.Exception) => ex.message shouldBe msg }
+
   // ExtendedConferenceTrack
 
   implicit final class ExtendedConferenceTrack(track: ConferenceTrack) {

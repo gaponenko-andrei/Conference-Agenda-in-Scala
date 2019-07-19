@@ -4,6 +4,12 @@ import agp.vo.Talk.{MaxDuration, MinDuration}
 
 import scala.concurrent.duration._
 
+
+trait EventLike {
+  def title: String
+  def duration: Duration
+}
+
 // Event
 
 sealed abstract class Event extends EventLike {

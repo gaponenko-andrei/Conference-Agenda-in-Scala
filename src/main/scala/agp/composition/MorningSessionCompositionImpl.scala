@@ -18,7 +18,7 @@ final class MorningSessionCompositionImpl(
       .collectFirst {
         case suitableTalks => new Result(
           session = MorningSession(suitableTalks),
-          unusedTalks = talks except suitableTalks)
+          unusedTalks = talks -- suitableTalks)
 
       } getOrElse (throw newException)
   }

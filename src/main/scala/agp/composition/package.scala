@@ -6,24 +6,21 @@ import org.scalactic.Or
 
 package object composition {
 
-  type KnapsackSolution = Set[Talk] => OnMetReq[TalksCombinations]
+  final case class Exception (message: String, cause: Throwable = null) extends RuntimeException(message, cause)
 
-  /* aliases for compositions */
+  private[composition] type ExceptionOr[T] = T Or composition.Exception
+
+  type KnapsackSolution = Set[Talk] => OnMetReq[TalksCombinations]
   type MorningSessionComposition = Set[Talk] => MorningSessionCompositionResult
   type MorningSessionsComposition = Set[Talk] => MorningSessionsCompositionResult
   type AfternoonSessionComposition = Set[Talk] => AfternoonSessionCompositionResult
   type AfternoonSessionsComposition = Set[Talk] => AfternoonSessionsCompositionResult
 
-  type MorningSessionsComposition2 = Set[Talk] => MorningSessionsCompositionResult Or composition.Exception
-  type AfternoonSessionsComposition2 = Set[Talk] => OnMetReq[AfternoonSessionsCompositionResult]
+  type MorningSessionsComposition2 = Set[Talk] => ExceptionOr[MorningSessionsCompositionResult]
+  type AfternoonSessionsComposition2 = Set[Talk] => ExceptionOr[AfternoonSessionsCompositionResult]
 
-  /* aliases for composition results */
   type MorningSessionCompositionResult = SessionCompositionResult[MorningSession]
   type MorningSessionsCompositionResult = SessionsCompositionResult[MorningSession]
   type AfternoonSessionCompositionResult = SessionCompositionResult[AfternoonSession]
   type AfternoonSessionsCompositionResult = SessionsCompositionResult[AfternoonSession]
-
-  /* specialized exception */
-  final case class Exception (message: String, cause: Throwable = null)
-    extends IllegalArgumentException(message, cause)
 }

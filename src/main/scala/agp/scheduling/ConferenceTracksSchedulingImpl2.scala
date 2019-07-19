@@ -4,7 +4,7 @@ import java.time.LocalTime
 
 import agp.Utils.OnMetReq
 import agp.composition._
-import agp.scheduling
+import agp.{composition, scheduling}
 import agp.vo._
 import org.scalactic.Or
 
@@ -44,7 +44,7 @@ class ConferenceTracksSchedulingImpl2(val trackStartTime: LocalTime)(
   /** Performs actual scheduling and returns conference tracks if scheduling
     * was successful, otherwise returns cause exception with details on error
     */
-  private def schedule(allTalks: Talks): OnMetReq[Tracks] = for {
+  private def schedule(allTalks: Talks): Tracks Or composition.Exception = for {
     i <- morningSessionsComposition(allTalks)
     j <- afternoonSessionsComposition(i.unusedTalks)
   } yield scheduleTracksBasedOn(pairedSessions = i.sessions zip j.sessions)

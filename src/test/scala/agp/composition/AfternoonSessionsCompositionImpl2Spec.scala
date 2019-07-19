@@ -26,7 +26,7 @@ class AfternoonSessionsCompositionImpl2Spec extends WordSpec with TestUtils with
         val result = composition(talks)
 
         Then("result should be expected exception")
-        assertBrokenRequirement(result, s"Talks.size is ${talks.size}, but must be >= 3.")
+        assertFailedComposition(result, s"Talks.size is ${talks.size}, but must be >= 3.")
       }
     }
 
