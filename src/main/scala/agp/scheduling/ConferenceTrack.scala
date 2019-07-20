@@ -7,6 +7,7 @@ import agp.vo.{Event, EventLike}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
 
+// todo move to agp.vo
 final case class ConferenceTrack private[scheduling](
   override val title: String,
   schedulings: Set[Scheduling]
