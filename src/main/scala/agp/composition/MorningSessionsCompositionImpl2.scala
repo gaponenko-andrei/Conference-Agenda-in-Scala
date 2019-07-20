@@ -25,8 +25,6 @@ final class MorningSessionsCompositionImpl2(
 ) extends MorningSessionsComposition2 {
 
   private type Result = MorningSessionsCompositionResult
-  // todo think about removing type altogether
-  private type SessionCompositionResult = agp.composition.SessionCompositionResult[MorningSession]
 
   /** Returns required number of morning sessions if composition was successful.
     * Otherwise returns [[agp.composition.Exception]] with detailed error message
@@ -53,20 +51,20 @@ final class MorningSessionsCompositionImpl2(
       Good(new Result(sessions.toSet, unused))
     else composeSessionFrom(unused) match {
       case Bad(e: composition.Exception) => Bad(e)
-      case Good(i: SessionCompositionResult) =>
-        compose(i.unusedTalks, sessions :+ i.session)
+      case Good(session: MorningSession) => compose(
+        unused -- session.talks, sessions :+ session)
     }
 
   /** Performs composition of session for given talks, returning it along with unused talks
     */
-  private def composeSessionFrom(talks: Set[Talk]): ExceptionOr[SessionCompositionResult] = {
+  private def composeSessionFrom(talks: Set[Talk]): ExceptionOr[MorningSession] = {
     findSuitableCombinationsAmong(talks) match {
 
       case Good(combinations) if combinations.isEmpty =>
         Bad(newZeroCombinationsException)
 
       case Good(combinations) if combinations.nonEmpty =>
-        Good(newSessionCompositionResult(talks, combinations.head))
+        Good(MorningSession(combinations.head))
 
       case Bad(ex: IllegalArgumentException) =>
         Bad(newInvalidTalksException(ex))
@@ -81,11 +79,6 @@ final class MorningSessionsCompositionImpl2(
     composition.Exception(
       "Failed to compose morning session. Given talks " +
       "didn't meet requirements of knapsack solution.", ex)
-
-  private def newSessionCompositionResult(allTalks: Set[Talk], sessionTalks: Set[Talk]) =
-    new MorningSessionCompositionResult(
-      session = MorningSession(sessionTalks),
-      unusedTalks = allTalks -- sessionTalks)
 
   /** An alias for better comprehension of what knapsack solution actually does */
   private def findSuitableCombinationsAmong(talks: Set[Talk]) = knapsackSolution(talks)
