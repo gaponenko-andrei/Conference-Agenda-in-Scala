@@ -1,48 +1,58 @@
 package agp.scheduling
 
-import agp.TestUtils
+import java.time.LocalTime
+
 import agp.composition._
 import agp.vo.{AfternoonSession, Lunch, MorningSession, NetworkingEvent, Talk}
+import agp.{TestUtils, composition}
+import org.scalactic.{Bad, Good}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import org.scalatest.{GivenWhenThen, WordSpec}
 
 class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with GivenWhenThen with MockFactory {
 
   /* shorter alias for tested type */
-  type TracksScheduling = ConferenceTracksSchedulingImpl
+  type TracksScheduling = ConferenceTracksSchedulingImpl2
+
 
   "ConferenceTracksSchedulingImpl" should {
 
-    "throw" when {
+    "return detailed scheduling exception" when {
 
-      "morning sessions composition throws exception" in {
+      "morning sessions composition returns exception" in {
 
-        Given("morning sessions composition throwing exception")
-        val msComposition = (_: Set[Talk]) => throw new RuntimeException("_")
+        Given("morning sessions composition returning exception")
+        val msComposition = (_: Set[Talk]) => Bad(composition.Exception("original"))
 
         And("afternoon sessions composition returning some sessions")
         val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
-        And("scheduling using them")
-        val scheduling = new TracksScheduling(msComposition, asComposition)
+        When("scheduling using them is applied to some talks")
+        val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
-        Then("exception should be thrown when scheduling is applied")
-        an[agp.scheduling.Exception] should be thrownBy scheduling(5 talks)
+        Then("result should be expected exception")
+        inside(result) { case Bad(ex: agp.scheduling.Exception) =>
+          ex.cause shouldBe composition.Exception("original")
+          ex.message shouldBe "Failed to schedule conference tracks."
+        }
       }
 
-      "afternoon sessions composition throws exception" in {
+      "afternoon sessions composition returns exception" in {
 
         Given("morning sessions composition returning some sessions")
         val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
 
-        And("afternoon sessions composition throwing exception")
-        val asComposition = (_: Set[Talk]) => throw new RuntimeException("_")
+        And("afternoon sessions composition returning exception")
+        val asComposition = (_: Set[Talk]) => Bad(composition.Exception("original"))
 
-        And("scheduling using them")
-        val scheduling = new TracksScheduling(msComposition, asComposition)
+        When("scheduling using them is applied to some talks")
+        val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
-        Then("exception should be thrown when scheduling is applied")
-        an[agp.scheduling.Exception] should be thrownBy scheduling(5 talks)
+        Then("application result should be expected")
+        inside(result) { case Bad(ex: agp.scheduling.Exception) =>
+          ex.cause shouldBe composition.Exception("original")
+          ex.message shouldBe "Failed to schedule conference tracks."
+        }
       }
     }
 
@@ -57,10 +67,10 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
         val asComposition = newAfternoonSessionsCompositionReturning(j afternoonSessions)
 
         When("scheduling using them is applied to some talks")
-        val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+        val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
         Then(s"number of tracks should be ${i min j}")
-        tracks.size shouldBe (i min j)
+        inside(result) { case Good(tracks) => tracks.size shouldBe (i min j) }
       }
     }
 
@@ -75,12 +85,14 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
       val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("tracks should have expected talks")
-      val morningTalks = morningSessions.flatten
-      val afternoonTalks = afternoonSessions.flatten
-      talksOf(tracks) shouldBe (morningTalks ++ afternoonTalks)
+      inside(result) { case Good(tracks) =>
+        val morningTalks = morningSessions.flatten
+        val afternoonTalks = afternoonSessions.flatten
+        talksOf(tracks) shouldBe (morningTalks ++ afternoonTalks)
+      }
     }
 
     "schedule tracks with Lunch & NetworkingEvent" in {
@@ -92,10 +104,12 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
       val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("each track should contain scheduling of Lunch & NetworkingEvent")
-      tracks.foreach(eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
+      inside(result) { case Good(tracks) =>
+        tracks.foreach(eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
+      }
     }
 
     "nothing should be scheduled after NetworkingEvent" in {
@@ -107,10 +121,12 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
       val asComposition = newAfternoonSessionsCompositionReturning(3 afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("each track should have scheduling of NetworkingEvent as the last one")
-      tracks.foreach(_.max.event shouldBe NetworkingEvent)
+      inside(result) { case Good(tracks) =>
+        tracks.foreach(_.max.event shouldBe NetworkingEvent)
+      }
     }
 
     "schedule talks of morning sessions before lunch" in {
@@ -123,18 +139,18 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
       val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("morning session talks should be scheduled before lunch")
-      val sessions = morningSessions.toVector
-      for (track <- tracks) {
-        track.eventsBeforeLunch should {
-          equal(sessions(0).talks) or equal(sessions(1).talks)
-        }
+      inside(result map (_.toVector)) { case Good(tracks) =>
+        morningSessions foreach (_.talks should {
+          equal(tracks(0).eventsBeforeLunch) or
+          equal(tracks(1).eventsBeforeLunch)
+        })
       }
     }
 
-    "schedule talks talks of afternoon sessions after lunch" in {
+    "schedule talks of afternoon sessions after lunch" in {
 
       Given("morning sessions composition returning 2 sessions")
       val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
@@ -144,23 +160,25 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
       val asComposition = newAfternoonSessionsCompositionReturning(afternoonSessions)
 
       When("scheduling using them is applied to some talks")
-      val tracks = new TracksScheduling(msComposition, asComposition)(someTalks)
+      val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
       Then("afternoon session talks should be scheduled after lunch")
-      val sessions = afternoonSessions.toVector
-      for (track <- tracks) {
-        track.eventsAfterLunch - NetworkingEvent should {
-          equal(sessions(0).talks) or equal(sessions(1).talks)
-        }
+      inside(result map (_.toVector)) { case Good(tracks) =>
+        afternoonSessions foreach (_.talks should {
+          equal(tracks(0).talksAfterLunch) or
+          equal(tracks(1).talksAfterLunch)
+        })
       }
     }
   }
 
   /* utils */
 
+  def newTracksScheduling = new TracksScheduling(LocalTime.of(9, 0))(_, _)
+
   def newMorningSessionsCompositionReturning(sessions: Set[MorningSession]): MorningSessionsComposition =
-    _ => new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks)
+    _ => Good(new MorningSessionsCompositionResult(sessions, unusedTalks = someTalks))
 
   def newAfternoonSessionsCompositionReturning(sessions: Set[AfternoonSession]): AfternoonSessionsComposition =
-    _ => new AfternoonSessionsCompositionResult(sessions, unusedTalks = Set.empty)
+    _ => Good(new AfternoonSessionsCompositionResult(sessions, unusedTalks = Set.empty))
 }

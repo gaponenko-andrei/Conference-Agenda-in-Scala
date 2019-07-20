@@ -19,9 +19,9 @@ import org.scalactic.Or
   * as [[agp.vo.NetworkingEvent]] following afternoon session talks.
   */
 class ConferenceTracksSchedulingImpl2(val trackStartTime: LocalTime)(
-  val morningSessionsComposition: MorningSessionsComposition2,
-  val afternoonSessionsComposition: AfternoonSessionsComposition2
-) extends ConferenceTracksScheduling2 {
+  val morningSessionsComposition: MorningSessionsComposition,
+  val afternoonSessionsComposition: AfternoonSessionsComposition
+) extends ConferenceTracksScheduling {
 
   private type Talks = Set[Talk]
   private type Tracks = Set[ConferenceTrack]

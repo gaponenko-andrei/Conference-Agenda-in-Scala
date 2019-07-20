@@ -2,7 +2,7 @@ package agp
 
 import java.time.format.DateTimeFormatter
 
-import agp.scheduling.{ConferenceAgendaScheduling2, ConferenceTrack, Scheduling}
+import agp.scheduling.{ConferenceAgendaScheduling, ConferenceTrack, Scheduling}
 import agp.vo.{Lunch, NetworkingEvent, Talk}
 import org.scalactic.Or
 
@@ -24,14 +24,14 @@ object EntryPoint extends App {
 
   // Schedule conference tracks
 
-  val tracks: Set[ConferenceTrack] Or scheduling.Exception= {
+  val tracks: Set[ConferenceTrack] Or scheduling.Exception = {
     val inputTalks: Set[Talk] = TalksParsing(source)
-    ConferenceAgendaScheduling2(inputTalks)
+    ConferenceAgendaScheduling(inputTalks)
   }
 
   // Output results
 
-  tracks map(printTracks) badMap(println)
+  tracks map (printTracks) badMap (println)
 
   private def printTracks(tracks: Set[ConferenceTrack]): Unit = {
     for (track <- tracks.toList sortBy (_.title)) {

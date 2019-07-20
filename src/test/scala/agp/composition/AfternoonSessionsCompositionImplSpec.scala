@@ -1,47 +1,33 @@
 package agp.composition
 
 import agp.TestUtils
+import org.scalactic.Good
 import org.scalatest.{GivenWhenThen, WordSpec}
 
 class AfternoonSessionsCompositionImplSpec extends WordSpec with TestUtils with GivenWhenThen {
 
   /* shorter alias for tested type */
-  type SessionsComposition = AfternoonSessionsCompositionImpl
+  type Composition = AfternoonSessionsCompositionImpl
 
 
   "AfternoonSessionsCompositionImpl" should {
 
-    "throw when given number of talks < required number of sessions" in {
+    "return IllegalArgumentException when number of talks < required number of sessions" in {
 
       Given("required number of sessions = 3")
       val requiredSessionsNumber = 3
 
       And("afternoon session composition using it")
-      val composition = new SessionsComposition(requiredSessionsNumber)
+      val composition = new Composition(requiredSessionsNumber)
 
-      Then("exception should be thrown")
-      List(1 talks, 2 talks).foreach(talks =>
-        an[IllegalArgumentException] should be thrownBy {
-
-          When(s"composition is applied to ${talks.size} talks")
-          composition(talks)
-        })
-    }
-
-    "not throw when given number of talks >= required number of sessions" in {
-
-      Given("required number of sessions = 2")
-      val requiredSessionsNumber = 2
-
-      And("afternoon session composition using it")
-      val composition = new SessionsComposition(requiredSessionsNumber)
-
-      Then("no exception should be thrown")
-      List(2 talks, 3 talks).foreach(talks => noException should be thrownBy {
+      for (talks <- Seq(0 talks, 1 talks, 2 talks)) {
 
         When(s"composition is applied to ${talks.size} talks")
-        composition(talks)
-      })
+        val result = composition(talks)
+
+        Then("result should be expected exception")
+        assertFailedComposition(result, s"Talks.size is ${talks.size}, but must be >= 3.")
+      }
     }
 
     "result in required number of sessions" in {
@@ -50,20 +36,22 @@ class AfternoonSessionsCompositionImplSpec extends WordSpec with TestUtils with 
       val requiredSessionsNumber = 3
 
       And("afternoon session composition using it")
-      val composition = new SessionsComposition(requiredSessionsNumber)
+      val composition = new Composition(requiredSessionsNumber)
 
-      Then("result should have 3 sessions")
-      List(3 talks, 7 talks, 10 talks).foreach(talks => {
+      for (talks <- Seq(3 talks, 7 talks, 10 talks)) {
 
         When(s"composition is applied to ${talks.size} talks")
-        composition(talks).sessions.size shouldBe 3
-      })
+        val result = composition(talks)
+
+        Then("result should have expected number of sessions")
+        inside(result) { case Good(x) => x.sessions.size shouldBe 3 }
+      }
     }
 
-    "result in sessions with all given talks" in {
+    "result in sessions using all given talks" in {
 
-      Given("afternoon session composition")
-      val composition = new SessionsComposition(requiredSessionsNumber = 4)
+      Given("afternoon sessions composition")
+      val composition = new Composition(requiredSessionsNumber = 4)
 
       And("talks to compose into sessions")
       val talks = 10 talks
@@ -71,14 +59,17 @@ class AfternoonSessionsCompositionImplSpec extends WordSpec with TestUtils with 
       When("composition is applied")
       val result = composition(talks)
 
-      Then("sessions should have all talks")
-      result.sessions.flatten shouldBe talks
+      inside(result) { case Good(x) =>
 
-      And("each session should have at least 2 talks")
-      result.sessions.foreach(_.size should be >= 2)
+        Then("sessions should have all talks")
+        x.sessions.flatten shouldBe talks
 
-      And("unused talks should be empty")
-      result.unusedTalks shouldBe empty
+        And("each session should have at least 2 talks")
+        x.sessions.foreach(_.size should be >= 2)
+
+        And("unused talks should be empty")
+        x.unusedTalks shouldBe empty
+      }
     }
   }
 }

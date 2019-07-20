@@ -1,40 +1,40 @@
 package agp.weighting
 
+import agp.Utils.OnMetReq
 import agp.vo.{Talk, TalksCombinations}
-
 import scala.concurrent.duration.Duration
 
+/** Basic implementation of knapsack solution for talks that returns
+  * all combinations of given talks with durations summing to goal.
+  */
 object KnapsackSolutionForTalks {
 
-  /* private aliases for package-private types used in general knapsack solution */
+  private type Talks = Set[Talk]
   private type WCombination = List[WeighableTalk]
   private type WCombinations = List[WCombination]
 
 
-  def apply(goal: Duration)(talks: Set[Talk]): TalksCombinations = simplifySolution {
-    val solution = new GeneralKnapsackSolution[Duration, WeighableTalk]
-    val adaptedGoal = adaptForGeneralSolution(goal)
-    val weighables = adaptForGeneralSolution(talks)
+  /** Returns all combinations of given talks with durations summing to goal */
+  def apply(goal: Duration)(talks: Talks): OnMetReq[TalksCombinations] =
+    apply(talks, goal) map simplifyResult // if result is 'Good' then simplify it,
+                                          // otherwise return exception as it is
+
+  /** Applies [[agp.weighting.GeneralKnapsackSolution2]] to given goal & talks */
+  private def apply(talks: Talks, goal: Duration): OnMetReq[WCombinations] = {
+    val solution = new GeneralKnapsackSolution2[Duration, WeighableTalk]
+    val (adaptedGoal, weighables) = adaptForGeneralSolution(goal, talks)
     solution(adaptedGoal)(weighables)
   }
 
-  /* Methods to adapt (wrap) arguments for contract of general solution */
+  /** Wraps given goal & talks into weighables for general knapsack solution */
+  private def adaptForGeneralSolution(goal: Duration, talks: Talks) =
+    (WeighableDuration(goal), talks.map(WeighableTalk).toList)
 
-  private def adaptForGeneralSolution(talks: Set[Talk])
-  : WCombination = talks.map(WeighableTalk).toList
+  /** Unwraps (simplifies) given combinations of weighables to TalksCombinations */
+  private def simplifyResult(x: WCombinations): TalksCombinations = x.map(simplify).toSet
 
-  private def adaptForGeneralSolution(duration: Duration)
-  : WeighableDuration = WeighableDuration(duration)
-
-
-  /* Methods to simplify (unwrap) result of general solution into client-known types */
-
-  private def simplifySolution(combinations: WCombinations)
-  : TalksCombinations = combinations.map(simplifyCombination).toSet
-
-  private def simplifyCombination(combination: WCombination)
-  : Set[Talk] = combination.map(_.value).toSet
-
+  /** Unwraps (simplifies) given combination of weighables to Set[Talk] */
+  private def simplify(x: WCombination): Talks = x.map(_.value).toSet
 
   /* Auxiliary classes */
 

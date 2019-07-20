@@ -1,15 +1,18 @@
 package agp.weighting
 
+import agp.TestUtils
+import agp.Utils.OnMetReq
 import agp.vo.{Talk, TalksCombinations}
-import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import org.scalactic.Good
+import org.scalatest.{GivenWhenThen, WordSpec}
 
 import scala.concurrent.duration._
 
-class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matchers {
+class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with TestUtils {
 
-  "Solution" should {
+  "KnapsackSolutionForTalks" should {
 
-    "throw" when {
+    "return IllegalArgumentException" when {
 
       "goal duration is <= 0" in {
 
@@ -19,12 +22,23 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         And("non positive goal durations")
         val nonPositiveGoals = List(0 minutes, -1 minute)
 
-        Then("exception should be thrown")
-        nonPositiveGoals foreach (goal => an[IllegalArgumentException] should be thrownBy {
+        When("solution is applied to each goal")
+        val results = nonPositiveGoals map (applySolution(talks, _))
 
-          When(s"solution is applied to goal $goal")
-          applySolution(talks, goal)
-        })
+        Then("each result should be expected exception")
+        results foreach (assertBrokenRequirement(_, "Positive goal is required."))
+      }
+
+      "no talks are given" in {
+
+        Given("valid goal")
+        val goal = 20 minutes
+
+        When("solution is applied to zero talks")
+        val result = applySolution(Set.empty, goal)
+
+        Then("result should be expected exception")
+        assertBrokenRequirement(result, "At least one weighable is required.")
       }
     }
 
@@ -42,7 +56,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         val combinations = applySolution(talks, goal)
 
         Then("result should be empty")
-        combinations shouldBe empty
+        combinations shouldBe Good(Set.empty)
       }
 
       "every talk is barely shorter then goal" in {
@@ -57,7 +71,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         val combinations = applySolution(talks, goal)
 
         Then("result should be empty")
-        combinations shouldBe empty
+        combinations shouldBe Good(Set.empty)
       }
     }
 
@@ -75,7 +89,7 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         val combinations = applySolution(talks, goal)
 
         Then("one combination should be returned")
-        combinations shouldBe Set(talks)
+        combinations shouldBe Good(Set(talks))
       }
 
       "duration of several talks sums to goal" in {
@@ -93,61 +107,55 @@ class KnapsackSolutionForTalksSpec extends WordSpec with GivenWhenThen with Matc
         val combinations = applySolution(talks, goal)
 
         Then("one combination should be returned")
-        combinations shouldBe Set(
+        combinations shouldBe Good(Set(
           Set(Talk("#1", 15), Talk("#2", 15), Talk("#3", 30))
-        )
+        ))
       }
     }
 
-    "result in two combinations" when {
+    "result in two combinations when two among all talks have goal duration" in {
 
-      "two among all talks have goal duration" in {
+      Given("goal of 30 minutes")
+      val goal = 30 minutes
 
-        Given("goal of 30 minutes")
-        val goal = 30 minutes
+      And("several talks, two of them 30 minutes long")
+      val talks = Set(Talk("#1", 30), Talk("#2", 30), Talk("#3", 29))
 
-        And("several talks, two of them 30 minutes long")
-        val talks = Set(Talk("#1", 30), Talk("#2", 30), Talk("#3", 29))
+      When("solution is applied")
+      val combinations = applySolution(talks, goal)
 
-        When("solution is applied")
-        val combinations = applySolution(talks, goal)
-
-        Then("two combinations should be returned")
-        combinations shouldBe Set(
-          Set(Talk("#1", 30)),
-          Set(Talk("#2", 30))
-        )
-      }
+      Then("two combinations should be returned")
+      combinations shouldBe Good(Set(
+        Set(Talk("#1", 30)),
+        Set(Talk("#2", 30))
+      ))
     }
 
-    "result in expected combinations" when {
+    "result in expected combinations when given tasks can be combined different ways" in {
 
-      "given tasks can be combined different ways" in {
+      Given("goal of 50 minutes")
+      val goal = 50 minutes
 
-        Given("goal of 50 minutes")
-        val goal = 50 minutes
+      And("combination of talks that must result in many answers")
+      val talks = Set(
+        Talk("#1", 10), Talk("#2", 10), Talk("#3", 20),
+        Talk("#4", 30), Talk("#5", 50), Talk("#6", 60)
+      )
 
-        And("combination of talks that must result in many answers")
-        val talks = Set(
-          Talk("#1", 10), Talk("#2", 10), Talk("#3", 20),
-          Talk("#4", 30), Talk("#5", 50), Talk("#6", 60)
-        )
+      When("solution is applied")
+      val combinations = applySolution(talks, goal)
 
-        When("solution is applied")
-        val combinations = applySolution(talks, goal)
-
-        Then("combinations should be expected")
-        combinations shouldBe Set(
-          Set(Talk("#5", 50)),
-          Set(Talk("#4", 30), Talk("#3", 20)),
-          Set(Talk("#4", 30), Talk("#1", 10), Talk("#2", 10))
-        )
-      }
+      Then("combinations should be expected")
+      combinations shouldBe Good(Set(
+        Set(Talk("#5", 50)),
+        Set(Talk("#4", 30), Talk("#3", 20)),
+        Set(Talk("#4", 30), Talk("#1", 10), Talk("#2", 10))
+      ))
     }
   }
 
   /* utils */
 
-  def applySolution(talks: Set[Talk], goal: Duration): TalksCombinations =
+  def applySolution(talks: Set[Talk], goal: Duration): OnMetReq[TalksCombinations] =
     KnapsackSolutionForTalks(goal)(talks)
 }
