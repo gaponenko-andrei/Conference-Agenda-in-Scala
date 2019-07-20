@@ -12,5 +12,6 @@
 + EntryPoint
 + Self-review
 + ConferenceTracksSchedulingImpl2
-- AfternoonSessionsComposition2 type refactoring
++ AfternoonSessionsComposition2 type refactoring
 + ConferenceTrackAgendaScheduling2
++ EntryPoint

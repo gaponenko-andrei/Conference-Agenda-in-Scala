@@ -2,8 +2,9 @@ package agp
 
 import java.time.format.DateTimeFormatter
 
-import agp.scheduling.{ConferenceAgendaScheduling, ConferenceTrack, Scheduling}
+import agp.scheduling.{ConferenceAgendaScheduling2, ConferenceTrack, Scheduling}
 import agp.vo.{Lunch, NetworkingEvent, Talk}
+import org.scalactic.Or
 
 import scala.io.Source
 
@@ -23,17 +24,21 @@ object EntryPoint extends App {
 
   // Schedule conference tracks
 
-  val tracks: List[ConferenceTrack] = {
+  val tracks: Set[ConferenceTrack] Or scheduling.Exception= {
     val inputTalks: Set[Talk] = TalksParsing(source)
-    ConferenceAgendaScheduling(inputTalks)
-  }.toList.sortWith(_.title < _.title)
+    ConferenceAgendaScheduling2(inputTalks)
+  }
 
   // Output results
 
-  for (track <- tracks) {
-    println()
-    println(track.title)
-    track.toList.sorted.foreach(printScheduling)
+  tracks map(printTracks) badMap(println)
+
+  private def printTracks(tracks: Set[ConferenceTrack]): Unit = {
+    for (track <- tracks.toList sortBy (_.title)) {
+      println()
+      println(track.title)
+      track.toList.sorted.foreach(printScheduling)
+    }
   }
 
   def printScheduling(scheduling: Scheduling): Unit = {

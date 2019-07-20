@@ -85,5 +85,5 @@ object ConferenceAgendaScheduling2 {
   /** Determines maximum duration of [[agp.scheduling.ConferenceTrack]] */
   private val MaxTrackDuration: Duration = MorningSessionDuration + MaxAfternoonSessionDuration
 
-  def apply(talks: Set[Talk]): Set[ConferenceTrack] = new ConferenceAgendaScheduling()(talks)
+  def apply(talks: Set[Talk]): ExceptionOr[Set[ConferenceTrack]] = new ConferenceAgendaScheduling2()(talks)
 }
