@@ -13,7 +13,6 @@ object KnapsackSolutionForTalks {
   private type WCombination = List[WeighableTalk]
   private type WCombinations = List[WCombination]
 
-
   /** Returns all combinations of given talks with durations summing to goal */
   def apply(goal: Duration)(talks: Talks): OnMetReq[TalksCombinations] =
     apply(talks, goal) map simplifyResult // if result is 'Good' then simplify it,

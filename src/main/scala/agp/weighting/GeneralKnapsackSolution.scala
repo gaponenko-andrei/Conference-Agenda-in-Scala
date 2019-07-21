@@ -15,7 +15,6 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
   private type Combination = List[W]
   private type Combinations = List[Combination]
 
-
   def apply(goal: Goal)(weighables: Weighables): OnMetReq[Combinations] = for {
 
     _ <- if (goal.isPositive) Good(goal)
@@ -24,7 +23,7 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
     _ <- if (weighables.nonEmpty) Good(weighables)
          else new IllegalArgumentException("At least one weighable is required.")
 
-    _ <- if (weighables.forall(_.isPositive)) Good(weighables)
+    _ <- if (weighables forall (_.isPositive)) Good(weighables)
          else new IllegalArgumentException("All weighables must be positive.")
 
   } yield findCombinationsFor(goal, weighables.sorted(Ordering[Weighable[T]].reverse))
