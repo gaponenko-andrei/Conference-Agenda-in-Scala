@@ -1,10 +1,13 @@
 package agp
 
-import org.scalactic.{Bad, Good, Or}
+import org.scalactic.Or
 
 import scala.annotation.tailrec
 
 object Utils {
+
+  /** Alias for "on met requirements" */
+  type OnMetReq[T] = T Or IllegalArgumentException
 
   // RichSeq
 
@@ -30,20 +33,5 @@ object Utils {
     divide(undivided = seq,
            partitions = List.empty,
            extra = seq.size % n).reverse
-  }
-
-  // ExplainedRequirement // todo generalize for all exceptions
-
-  /** Alias for "on met requirements" */
-  type OnMetReq[T] = T Or IllegalArgumentException
-
-  final implicit class ExplainedRequirement[T](value: => T) {
-    def given(condition: => Boolean) = new Given(condition)
-
-    final class Given(condition: => Boolean) {
-      def because(msg: String): T Or IllegalArgumentException =
-        if (condition) Good(value)
-        else Bad(new IllegalArgumentException(msg))
-    }
   }
 }

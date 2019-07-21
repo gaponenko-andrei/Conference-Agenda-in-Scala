@@ -1,13 +1,14 @@
 package agp.weighting
 
-import agp.Utils.{ExplainedRequirement, OnMetReq}
+import agp.Utils.OnMetReq
+import org.scalactic.Good
 
 import scala.annotation.tailrec
 
 /** A basic implementation of algorithm that finds all combinations
   * of weighables with their combined weight equal to provided goal.
   */
-final class GeneralKnapsackSolution2[T <: Ordered[T], W <: Weighable[T]] {
+final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
 
   private type Goal = Weighable[T]
   private type Weighables = List[W]
@@ -17,17 +18,14 @@ final class GeneralKnapsackSolution2[T <: Ordered[T], W <: Weighable[T]] {
 
   def apply(goal: Goal)(weighables: Weighables): OnMetReq[Combinations] = for {
 
-    _ <- goal given
-         goal.isPositive because
-         "Positive goal is required."
+    _ <- if (goal.isPositive) Good(goal)
+         else new IllegalArgumentException("Positive goal is required.")
 
-    _ <- weighables given
-         weighables.nonEmpty because
-         "At least one weighable is required."
+    _ <- if (weighables.nonEmpty) Good(weighables)
+         else new IllegalArgumentException("At least one weighable is required.")
 
-    _ <- weighables given
-         weighables.forall(_.isPositive) because
-         "All weighables must be positive."
+    _ <- if (weighables.forall(_.isPositive)) Good(weighables)
+         else new IllegalArgumentException("All weighables must be positive.")
 
   } yield findCombinationsFor(goal, weighables.sorted(Ordering[Weighable[T]].reverse))
 

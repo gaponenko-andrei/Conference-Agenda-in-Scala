@@ -1,7 +1,6 @@
 package agp.weighting
 
 import agp.Utils.OnMetReq
-import org.scalactic.Or
 
 /** Basic implementation of knapsack solution for ints that
   * returns all combinations of given ints summing to goal.
@@ -20,9 +19,9 @@ object KnapsackSolutionForInts {
     apply(ints, goal) map simplifyResult // if result is 'Good' then simplify it,
                                          // otherwise return exception as it is
 
-  /** Applies [[agp.weighting.GeneralKnapsackSolution2]] to given goal & ints */
+  /** Applies [[agp.weighting.GeneralKnapsackSolution]] to given goal & ints */
   private def apply(ints: List[Int], goal: Int): OnMetReq[WCombinations] = {
-    val solution = new GeneralKnapsackSolution2[OrderedInt, WeighableInt]
+    val solution = new GeneralKnapsackSolution[OrderedInt, WeighableInt]
     val (adaptedGoal, weighables) = adaptForGeneralSolution(goal, ints)
     solution(adaptedGoal)(weighables)
   }
