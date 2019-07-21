@@ -13,11 +13,10 @@ import org.scalactic.{Bad, Good}
   * i.e. [[agp.composition.AfternoonSessionsCompositionResult]].
   *
   * If requirements for successful composition were not met, then
-  * `IllegalArgumentException` is returned with detailed explanation.
+  * [[agp.composition.Exception]] is returned with error message.
   *
   * Take note that this particular implementation never leaves any
-  * talks unused, so corresponding result field will always be an
-  * empty set of talks. This is made for generalization purpose.
+  * talks unused, so corresponding result field is always empty set.
   */
 final class AfternoonSessionsCompositionImpl(val requiredSessionsNumber: Int) extends AfternoonSessionsComposition {
 
@@ -25,13 +24,13 @@ final class AfternoonSessionsCompositionImpl(val requiredSessionsNumber: Int) ex
   private type Result = AfternoonSessionsCompositionResult
 
   /** Returns required number of afternoon sessions if composition was successful.
-    * Otherwise returns `IllegalArgumentException` with detailed error message
+    * Otherwise returns [[agp.composition.Exception]] with detailed error message
     */
   override def apply(talks: Talks): ExceptionOr[Result] =
     validated(talks) flatMap compose
 
   /** Returns validated instance of given talks in case they pass preconditions
-    * set by this function or `IllegalArgumentException` with error message
+    * set by this function or [[agp.composition.Exception]] with error message
     */
   private def validated(talks: Talks): ExceptionOr[Talks] =
     if (talks.size >= requiredSessionsNumber) Good(talks)
