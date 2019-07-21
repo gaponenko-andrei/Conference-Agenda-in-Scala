@@ -12,7 +12,7 @@ package object composition {
   type MorningSessionsComposition = Set[Talk] => ExceptionOr[MorningSessionsCompositionResult]
   type AfternoonSessionsComposition = Set[Talk] => ExceptionOr[AfternoonSessionsCompositionResult]
 
-  /** Alias for package-internal use only, bound to package-specific exception */
+  /** Alias for package use only, bound to package-specific exception */
   private[composition] type ExceptionOr[T] = T Or composition.Exception
 
   /** Auxiliary type to return composed sessions along with talks unused during composition */

@@ -19,9 +19,9 @@ object KnapsackSolutionForTalks {
     apply(talks, goal) map simplifyResult // if result is 'Good' then simplify it,
                                           // otherwise return exception as it is
 
-  /** Applies [[agp.weighting.GeneralKnapsackSolution2]] to given goal & talks */
+  /** Applies [[agp.weighting.GeneralKnapsackSolution]] to given goal & talks */
   private def apply(talks: Talks, goal: Duration): OnMetReq[WCombinations] = {
-    val solution = new GeneralKnapsackSolution2[Duration, WeighableTalk]
+    val solution = new GeneralKnapsackSolution[Duration, WeighableTalk]
     val (adaptedGoal, weighables) = adaptForGeneralSolution(goal, talks)
     solution(adaptedGoal)(weighables)
   }
