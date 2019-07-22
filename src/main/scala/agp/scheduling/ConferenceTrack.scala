@@ -17,6 +17,7 @@ final case class ConferenceTrack private[scheduling](
   override def iterator: Iterator[Scheduling] = schedulings.iterator
 }
 
+// todo remove
 object ConferenceTrack {
 
   def newBuilder: Builder = new Builder
