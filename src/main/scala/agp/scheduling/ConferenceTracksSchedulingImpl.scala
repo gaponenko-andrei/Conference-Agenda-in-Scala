@@ -18,7 +18,7 @@ import org.scalactic.Or
   * will place [[agp.vo.Lunch]] after morning session talks, as well
   * as [[agp.vo.NetworkingEvent]] following afternoon session talks.
   */
-class ConferenceTracksSchedulingImpl2(val trackStartTime: LocalTime)(
+class ConferenceTracksSchedulingImpl(val trackStartTime: LocalTime)(
   val morningSessionsComposition: MorningSessionsComposition,
   val afternoonSessionsComposition: AfternoonSessionsComposition
 ) extends ConferenceTracksScheduling {

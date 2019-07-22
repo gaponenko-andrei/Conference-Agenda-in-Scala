@@ -17,7 +17,7 @@ package object composition {
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   /** Definition of function producing [[agp.vo.Session]] from talks */
-  type SessionsComposition[S <: Session] = Set[Talk] => ExceptionOr[S]
+  type SessionsComposition[S <: Session] = Set[Talk] => ExceptionOr[SessionsCompositionResult[S]]
 
   /** Definition of function producing [[agp.vo.MorningSession]] from talks */
   type MorningSessionsComposition = SessionsComposition[MorningSession]

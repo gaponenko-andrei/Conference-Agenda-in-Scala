@@ -40,7 +40,7 @@ class ConferenceAgendaScheduling extends ConferenceTracksScheduling {
     */
   private def scheduleTracks(talks: Talks): ExceptionOr[Tracks] = {
     val requiredTracksNumber = calcRequiredTracksNumberFor(talks)
-    new ConferenceTracksSchedulingImpl2(TrackStartTime)(
+    new ConferenceTracksSchedulingImpl(TrackStartTime)(
       newMorningSessionsCompositionFor(requiredTracksNumber),
       newAfternoonSessionsCompositionFor(requiredTracksNumber)
     ).apply(talks)

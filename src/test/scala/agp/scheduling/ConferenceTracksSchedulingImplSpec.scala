@@ -12,7 +12,7 @@ import org.scalatest.{GivenWhenThen, WordSpec}
 class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with GivenWhenThen with MockFactory {
 
   /* shorter alias for tested type */
-  type TracksScheduling = ConferenceTracksSchedulingImpl2
+  type TracksScheduling = ConferenceTracksSchedulingImpl
 
 
   "ConferenceTracksSchedulingImpl" should {

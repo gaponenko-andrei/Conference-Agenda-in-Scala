@@ -12,6 +12,5 @@ package object scheduling {
 
   private[scheduling] type ExceptionOr[T] = T Or scheduling.Exception
 
-  type ConferenceTracksScheduling = Set[Talk] => Set[ConferenceTrack]
   type ConferenceTracksScheduling = Set[Talk] => ExceptionOr[Set[ConferenceTrack]]
 }

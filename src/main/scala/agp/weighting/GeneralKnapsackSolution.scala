@@ -1,7 +1,7 @@
 package agp.weighting
 
 import agp.Utils.OnMetReq
-import org.scalactic.Good
+import org.scalactic.{Bad, Good, Or}
 
 import scala.annotation.tailrec
 
@@ -16,17 +16,26 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
   private type Combinations = List[Combination]
 
   def apply(goal: Goal)(weighables: Weighables): OnMetReq[Combinations] = for {
-
-    _ <- if (goal.isPositive) Good(goal)
-         else new IllegalArgumentException("Positive goal is required.")
-
-    _ <- if (weighables.nonEmpty) Good(weighables)
-         else new IllegalArgumentException("At least one weighable is required.")
-
-    _ <- if (weighables forall (_.isPositive)) Good(weighables)
-         else new IllegalArgumentException("All weighables must be positive.")
-
+    _ <- requirePositive(goal)
+    _ <- requireNonEmpty(weighables)
+    _ <- requirePositive(weighables)
   } yield findCombinationsFor(goal, weighables.sorted(Ordering[Weighable[T]].reverse))
+
+  // Function Requirements
+
+  private def requirePositive(goal: Goal): OnMetReq[Goal] =
+    if (goal.isPositive) Good(goal)
+    else Bad(new IllegalArgumentException("Positive goal is required."))
+
+  private def requireNonEmpty(weighables: Weighables): OnMetReq[Weighables] =
+    if (weighables.nonEmpty) Good(weighables)
+    else Bad(new IllegalArgumentException("At least one weighable is required."))
+
+  private def requirePositive(weighables: Weighables): OnMetReq[Weighables] =
+    if (weighables forall (_.isPositive)) Good(weighables)
+    else Bad(new IllegalArgumentException("All weighables must be positive."))
+
+  // Actual Logic
 
   private def findCombinationsFor(goal: Goal, allWeighables: Weighables): Combinations = {
 
