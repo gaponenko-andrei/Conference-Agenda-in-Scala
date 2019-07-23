@@ -1,7 +1,7 @@
 package agp.weighting
 
 import agp.Utils.OnMetReq
-import org.scalactic.{Bad, Good, Or}
+import org.scalactic.{Bad, Good}
 
 import scala.annotation.tailrec
 
@@ -19,7 +19,8 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
     _ <- requirePositive(goal)
     _ <- requireNonEmpty(weighables)
     _ <- requirePositive(weighables)
-  } yield findCombinationsFor(goal, weighables.sorted(Ordering[Weighable[T]].reverse))
+    descSortedWeighables = weighables.sorted(Ordering[Weighable[T]].reverse)
+  } yield findCombinationsFor(goal, descSortedWeighables)
 
   // Function Requirements
 

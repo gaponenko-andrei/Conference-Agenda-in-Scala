@@ -6,6 +6,7 @@ import agp.vo.{Event, EventLike}
 
 import scala.concurrent.duration.Duration
 
+/** Binding of event to specific start & end time. */
 final case class Scheduling private[scheduling](event: Event, startTime: LocalTime) extends EventLike {
   override def title: String = event.title
   override def duration: Duration = event.duration
@@ -13,5 +14,6 @@ final case class Scheduling private[scheduling](event: Event, startTime: LocalTi
 }
 
 object Scheduling {
+  /** Default ordering - ascending by start time */
   implicit def orderingByStartTime: Ordering[Scheduling] = Ordering.by(_.startTime)
 }

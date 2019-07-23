@@ -16,7 +16,7 @@ import scala.collection.immutable.Queue
   * i.e. [[agp.composition.MorningSessionsCompositionResult]].
   *
   * If requirements for successful composition were not met, then
-  * `IllegalArgumentException` is returned with detailed explanation.
+  * [[agp.composition.Exception]] is returned with error message.
   */
 final class MorningSessionsCompositionImpl(
   val requiredSessionsNumber: Int,
