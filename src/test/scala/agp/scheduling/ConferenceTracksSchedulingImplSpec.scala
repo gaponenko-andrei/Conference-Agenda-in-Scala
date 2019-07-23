@@ -4,7 +4,7 @@ import java.time.LocalTime
 
 import agp.composition._
 import agp.vo.{AfternoonSession, Lunch, MorningSession, NetworkingEvent, Talk}
-import agp.{TestUtils, composition}
+import agp.{TestUtils, composition, scheduling}
 import org.scalactic.{Bad, Good}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, WordSpec}
@@ -22,7 +22,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
       "morning sessions composition returns exception" in {
 
         Given("morning sessions composition returning exception")
-        val msComposition = (_: Set[Talk]) => Bad(composition.Exception("original"))
+        val msComposition = (_: Set[Talk]) => Bad(composition.Exception("cause"))
 
         And("afternoon sessions composition returning some sessions")
         val asComposition = newAfternoonSessionsCompositionReturning(2 afternoonSessions)
@@ -31,10 +31,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
         val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
         Then("result should be expected exception")
-        inside(result) { case Bad(ex: agp.scheduling.Exception) =>
-          ex.cause shouldBe composition.Exception("original")
-          ex.message shouldBe "Failed to schedule conference tracks."
-        }
+        assertFailedScheduling(result, cause = composition.Exception("cause"))
       }
 
       "afternoon sessions composition returns exception" in {
@@ -43,16 +40,17 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
         val msComposition = newMorningSessionsCompositionReturning(2 morningSessions)
 
         And("afternoon sessions composition returning exception")
-        val asComposition = (_: Set[Talk]) => Bad(composition.Exception("original"))
+        val asComposition = (_: Set[Talk]) => Bad(composition.Exception("cause"))
 
         When("scheduling using them is applied to some talks")
         val result = newTracksScheduling(msComposition, asComposition)(someTalks)
 
-        Then("application result should be expected")
-        inside(result) { case Bad(ex: agp.scheduling.Exception) =>
-          ex.cause shouldBe composition.Exception("original")
-          ex.message shouldBe "Failed to schedule conference tracks."
-        }
+        Then("result should be expected exception")
+        assertFailedScheduling(result, cause = composition.Exception("cause"))
+      }
+
+      def assertFailedScheduling(result: ExceptionOr[Set[ConferenceTrack]], cause: composition.Exception): Unit = {
+        result shouldBe Bad(scheduling.Exception("Failed to schedule conference tracks.", cause))
       }
     }
 
@@ -108,7 +106,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
 
       Then("each track should contain scheduling of Lunch & NetworkingEvent")
       inside(result) { case Good(tracks) =>
-        tracks.foreach(eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
+        tracks foreach (eventsOf(_) should contain allOf(Lunch, NetworkingEvent))
       }
     }
 
@@ -125,7 +123,7 @@ class ConferenceTracksSchedulingImplSpec extends WordSpec with TestUtils with Gi
 
       Then("each track should have scheduling of NetworkingEvent as the last one")
       inside(result) { case Good(tracks) =>
-        tracks.foreach(_.max.event shouldBe NetworkingEvent)
+        tracks foreach (_.max.event shouldBe NetworkingEvent)
       }
     }
 

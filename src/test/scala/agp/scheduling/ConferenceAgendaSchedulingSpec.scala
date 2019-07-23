@@ -4,7 +4,7 @@ import java.time.LocalTime
 
 import agp.TestUtils
 import agp.vo.Talk
-import org.scalactic.Good
+import org.scalactic.{Bad, Good}
 import org.scalatest.{GivenWhenThen, WordSpec}
 
 import scala.concurrent.duration._
@@ -18,11 +18,19 @@ class ConferenceAgendaSchedulingSpec extends WordSpec with TestUtils with GivenW
     "return expected exception" when {
 
       "overall duration of talks < 185 min" in {
-        0 to 2 foreach (i => assertFailedScheduling(
-          scheduling(i talksWithDuration 60),
-          s"Overall duration of talks must be >= ${185 minutes} to " +
-          "schedule at least one track of morning & afternoon sessions."
-        ))
+        0 to 2 foreach { n =>
+
+          Given(s"$n talks, each hour-long")
+          val talks = n talksWithDuration 60
+
+          When("scheduling is applied")
+          val result = scheduling(talks)
+
+          Then("result should be expected exception")
+          assertFailedScheduling(result,
+            s"Overall duration of talks must be >= ${185 minutes} to " +
+            "schedule at least one track of morning & afternoon sessions.")
+        }
       }
 
       "it's impossible to create agenda for given talks" in {
@@ -37,6 +45,11 @@ class ConferenceAgendaSchedulingSpec extends WordSpec with TestUtils with GivenW
 
         Then("result should be expected exception")
         assertFailedScheduling(result, "Failed to schedule conference tracks.")
+      }
+
+      def assertFailedScheduling(result: ExceptionOr[Set[ConferenceTrack]], message: String): Unit = {
+        // exception may have a cause as well, but here we test only message
+        inside(result) { case Bad(ex) => ex.message shouldBe message }
       }
     }
 

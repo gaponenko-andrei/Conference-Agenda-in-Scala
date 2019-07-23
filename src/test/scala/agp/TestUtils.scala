@@ -29,18 +29,8 @@ trait TestUtils extends Inside with Matchers {
   def assertBrokenRequirement(obj: OnMetReq[Any], msg: String): Assertion =
     inside(obj) { case Bad(ex: IllegalArgumentException) => ex should have message msg }
 
-  // todo remove & replace with full check including cause
   def assertFailedComposition(obj: Any Or composition.Exception, msg: String): Assertion =
-    inside(obj) { case Bad(ex: composition.Exception) => ex.message shouldBe msg }
-
-  def assertFailedScheduling(obj: Any Or scheduling.Exception, message: String): Assertion =
-    inside(obj) { case Bad(ex: agp.scheduling.Exception) => ex.message shouldBe message }
-
-  def assertFailedScheduling(obj: Any Or scheduling.Exception, message: String, cause: Throwable): Assertion =
-    inside(obj) { case Bad(ex: agp.scheduling.Exception) =>
-      ex.cause shouldBe cause
-      ex.message shouldBe message
-    }
+    obj shouldBe Bad(composition.Exception(msg))
 
 
   // ExtendedConferenceTrack
@@ -65,6 +55,7 @@ trait TestUtils extends Inside with Matchers {
     lazy val networkingEventScheduling: Scheduling = track find (_.event == NetworkingEvent) getOrElse (
       throw new IllegalStateException("Track is supposed to have one scheduling of NetworkingEvent."))
   }
+
 
   // DummiesFactory
 
