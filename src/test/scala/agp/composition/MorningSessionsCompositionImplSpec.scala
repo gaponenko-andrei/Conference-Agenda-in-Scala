@@ -1,8 +1,7 @@
 package agp.composition
 
 import agp.TestUtils
-import agp.Utils.OnMetReq
-import agp.vo.{MorningSession, Talk, TalksCombinations, _}
+import agp.vo.{MorningSession, Talk, TalksCombinations}
 import org.scalactic.{Bad, Good}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, WordSpec}
@@ -54,7 +53,8 @@ class MorningSessionsCompositionImplSpec extends WordSpec
         val requiredSessionsNumber = 3
 
         And("knapsack solution returning IllegalArgumentException")
-        val knapsackSolution = (_: Set[Talk]) => Bad(new IllegalArgumentException)
+        val failureCause = new IllegalArgumentException("some msg")
+        val knapsackSolution = (_: Set[Talk]) => Bad(failureCause)
 
         And("sessions composition using them")
         val composition = new Composition(requiredSessionsNumber, knapsackSolution)
@@ -63,7 +63,7 @@ class MorningSessionsCompositionImplSpec extends WordSpec
         val result = composition(3 talks)
 
         Then("result should be expected exception")
-        assertFailedComposition(result,
+        assertFailedComposition(result, failureCause,
           "Failed to compose morning session. Given talks " +
           "didn't meet requirements of knapsack solution.")
       }

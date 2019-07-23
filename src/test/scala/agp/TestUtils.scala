@@ -32,6 +32,11 @@ trait TestUtils extends Inside with Matchers {
   def assertFailedComposition(obj: Any Or composition.Exception, msg: String): Assertion =
     obj shouldBe Bad(composition.Exception(msg))
 
+  def assertFailedComposition(obj: Or[Any, composition.Exception], cause: Throwable, msg: String): Assertion =
+    inside(obj) { case Bad(ex: agp.composition.Exception) =>
+      ex.cause shouldBe cause
+      ex.message shouldBe msg
+    }
 
   // ExtendedConferenceTrack
 
