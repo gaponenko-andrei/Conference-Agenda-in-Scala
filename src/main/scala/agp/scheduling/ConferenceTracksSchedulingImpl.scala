@@ -81,7 +81,7 @@ class ConferenceTracksSchedulingImpl(val trackStartTime: LocalTime)(
     }
 
     def buildWith(title: String): ConferenceTrack =
-      new ConferenceTrack(title, schedulings.toSet)
+      ConferenceTrack(title, schedulings.toSet)
 
     private def newSchedulingOf(event: Event) =
       Scheduling(event, startTime = {

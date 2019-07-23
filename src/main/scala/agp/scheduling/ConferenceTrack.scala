@@ -1,13 +1,9 @@
 package agp.scheduling
 
-import java.time.LocalTime
+import agp.vo.EventLike
 
-import agp.vo.{Event, EventLike}
-
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
 
-// todo move to agp.vo
 final case class ConferenceTrack private[scheduling](
   override val title: String,
   schedulings: Set[Scheduling]
@@ -15,47 +11,4 @@ final case class ConferenceTrack private[scheduling](
 
   override def duration: Duration = schedulings.duration
   override def iterator: Iterator[Scheduling] = schedulings.iterator
-}
-
-// todo remove
-object ConferenceTrack {
-
-  def newBuilder: Builder = new Builder
-
-  final class Builder {
-
-    private val startTime = LocalTime.of(9, 0)
-    private val schedulings = new ArrayBuffer[Scheduling]
-
-    def schedule(sequence: Event*): Builder = schedule(sequence.toIterable)
-
-    def schedule(sequence: Iterable[Event]): Builder = {
-      sequence.foreach(schedule)
-      this
-    }
-
-    def schedule(event: Event): Builder = {
-      requireNonScheduled(event)
-      if (schedulings.isEmpty) {
-        scheduleFirst(event)
-      } else {
-        scheduleLatest(event)
-      }
-      this
-    }
-
-    def build: ConferenceTrack = buildWithTitle("Track")
-
-    def buildWithTitle(title: String): ConferenceTrack =
-      new ConferenceTrack(title, schedulings.toSet)
-
-    private def scheduleFirst(event: Event): Unit =
-      schedulings.append(Scheduling(event, startTime))
-
-    private def scheduleLatest(event: Event): Unit =
-      schedulings.append(Scheduling(event, schedulings.last.endTime))
-
-    private def requireNonScheduled(event: Event): Unit =
-      require(!schedulings.exists(_.event == event), "Event can't be scheduled twice.")
-  }
 }
