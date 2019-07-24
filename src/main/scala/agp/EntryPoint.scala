@@ -31,7 +31,7 @@ object EntryPoint extends App {
 
   // Output results
 
-  tracks map (printTracks) badMap (println)
+  tracks map printTracks badMap println
 
   private def printTracks(tracks: Set[ConferenceTrack]): Unit = {
     for (track <- tracks.toList sortBy (_.title)) {
