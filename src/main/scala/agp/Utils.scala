@@ -7,19 +7,19 @@ import scala.annotation.tailrec
 object Utils {
 
   /** Alias for "on met requirements" */
-  type OnMetReq[T] = T Or IllegalArgumentException
+  type OnMetReq[A] = A Or IllegalArgumentException
 
   // RichSeq
 
-  final implicit class RichSeq[T](seq: Seq[T]) {
-    def equallyDividedInto(partitionsCount: Int): List[Seq[T]] = divideEqually(seq, partitionsCount)
+  final implicit class RichSeq[A](seq: Seq[A]) {
+    def equallyDividedInto(partitionsCount: Int): List[Seq[A]] = divideEqually(seq, partitionsCount)
   }
 
-  private def divideEqually[T](seq: Seq[T], n: Int): List[Seq[T]] = {
+  private def divideEqually[A](seq: Seq[A], n: Int): List[Seq[A]] = {
     val idealChunkSize = seq.size / n
 
     @tailrec
-    def divide(undivided: Seq[T], partitions: List[Seq[T]], extra: Int): List[Seq[T]] =
+    def divide(undivided: Seq[A], partitions: List[Seq[A]], extra: Int): List[Seq[A]] =
       if (undivided.isEmpty) partitions else {
         // take X elements that ideally should be in a chunk,
         // but if there is extra, take +1 and decrement extra

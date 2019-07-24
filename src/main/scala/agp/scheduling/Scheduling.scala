@@ -6,7 +6,7 @@ import agp.vo.{Event, EventLike}
 
 import scala.concurrent.duration.Duration
 
-/** Binding of event to specific start & end time. */
+/** Binding of event to specific start & end time */
 final case class Scheduling private[scheduling](event: Event, startTime: LocalTime) extends EventLike {
   override def title: String = event.title
   override def duration: Duration = event.duration

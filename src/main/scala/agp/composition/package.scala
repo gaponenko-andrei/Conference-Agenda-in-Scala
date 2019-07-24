@@ -52,7 +52,7 @@ package object composition {
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   /** Alias for package use only, bound to package-specific exception */
-  private[composition] type ExceptionOr[T] = T Or composition.Exception
+  private[composition] type ExceptionOr[A] = A Or composition.Exception
 
   /** Specialized exception that should be thrown by
     * every component of the package in case of error

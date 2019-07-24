@@ -8,9 +8,9 @@ import scala.annotation.tailrec
 /** A basic implementation of algorithm that finds all combinations
   * of weighables with their combined weight equal to provided goal.
   */
-final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
+final class GeneralKnapsackSolution[A <: Ordered[A], W <: Weighable[A]] {
 
-  private type Goal = Weighable[T]
+  private type Goal = Weighable[A]
   private type Weighables = List[W]
   private type Combination = List[W]
   private type Combinations = List[Combination]
@@ -19,7 +19,7 @@ final class GeneralKnapsackSolution[T <: Ordered[T], W <: Weighable[T]] {
     _ <- requirePositive(goal)
     _ <- requireNonEmpty(weighables)
     _ <- requirePositive(weighables)
-    descSortedWeighables = weighables.sorted(Ordering[Weighable[T]].reverse)
+    descSortedWeighables = weighables.sorted(Ordering[Weighable[A]].reverse)
   } yield findCombinationsFor(goal, descSortedWeighables)
 
   // Function Requirements
